@@ -177,7 +177,7 @@ export default function Home() {
   const allNotesCompact = notes.map((n) => ({ id: n.id, title: n.title }));
 
   return (
-    <div className="min-h-screen bg-pearl pb-20 selection:bg-sage-light selection:text-sage-dark">
+    <div className="min-h-screen bg-transparent pb-20 selection:bg-sage-light selection:text-sage-dark">
       {/* navigation and header */}
       <Header
         notesCount={totalCount}
