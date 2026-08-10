@@ -1,0 +1,14 @@
+{
+  "name": "mindgarden",
+  "version": "1.0.0",
+  "description": "Mindgarden: A calm, card-based personal knowledge garden MVP",
+  "scripts": {
+    "dev:backend": "cd backend && python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
