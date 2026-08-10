@@ -20,7 +20,7 @@ try {
       signalColor: "#64748b",
     },
   });
-} catch (e) {
+} catch {
   // ignore
 }
 

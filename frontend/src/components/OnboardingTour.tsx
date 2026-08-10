@@ -2,16 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HelpCircle, Sparkles, Navigation, Terminal, ArrowRight, X } from "lucide-react";
+import { Sparkles, Navigation, Terminal, ArrowRight, X } from "lucide-react";
 
 export default function OnboardingTour() {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
-    const seen = localStorage.getItem("mindgarden_tour_seen");
-    if (!seen) {
-      setIsOpen(true);
+    try {
+      const seen = localStorage.getItem("mindgarden_tour_seen");
+      if (!seen) {
+        setIsOpen(true);
+      }
+    } catch {
+      // ignore
     }
   }, []);
 
