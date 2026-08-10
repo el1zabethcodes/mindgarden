@@ -2,10 +2,10 @@
 
 :root {
   /* color system */
-  --background: #f4f6f8;
+  --background: #f1f3f5;
   --foreground: #1e293b;
   
-  --sage-light: #edf3ed;
+  --sage-light: #f1f5f1;
   --sage: #87a987;
   --sage-medium: #729772;
   --sage-dark: #5a7d5a;
@@ -18,7 +18,7 @@
   --slate-light: #f8fafc;
   --slate: #64748b;
   
-  --pearl: #f4f6f8;
+  --pearl: #f1f3f5;
   --charcoal: #1e293b;
 }
 
@@ -45,7 +45,7 @@
   --color-charcoal: var(--charcoal);
   --color-pearl: var(--pearl);
   
-  --shadow-garden: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --shadow-garden: 0 16px 40px rgba(0, 0, 0, 0.02), 0 2px 8px rgba(0, 0, 0, 0.01);
   --shadow-drawer: -10px 0 40px rgba(0, 0, 0, 0.08);
 }
 
@@ -54,6 +54,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  /* soft sage dot grid background pattern */
+  background-image: radial-gradient(rgba(135, 169, 135, 0.12) 1.5px, transparent 0);
+  background-size: 32px 32px;
+  background-attachment: fixed;
 }
 
 /* custom scrollbar */
