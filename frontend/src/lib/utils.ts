@@ -27,9 +27,17 @@ export function parseMarkdown(md: string): string {
   const codeBlocks: string[] = [];
   let html = md.replace(/```([\s\S]*?)```/g, (match, code) => {
     const id = `__CODE_BLOCK_${codeBlocks.length}__`;
-    codeBlocks.push(
-      `<pre class="bg-slate-100/60 border border-slate-200/50 p-4 rounded-xl text-xs font-mono my-4 overflow-x-auto text-charcoal">${code.trim()}</pre>`
-    );
+    const trimmed = code.trim();
+    if (trimmed.startsWith("mermaid")) {
+      const syntax = trimmed.substring(7).trim();
+      codeBlocks.push(
+        `<div class="mermaid bg-slate-50/50 p-4 border border-slate-200/20 rounded-xl my-4 flex justify-center overflow-x-auto" data-syntax="${encodeURIComponent(syntax)}">${syntax}</div>`
+      );
+    } else {
+      codeBlocks.push(
+        `<pre class="bg-slate-100/60 border border-slate-200/50 p-4 rounded-xl text-xs font-mono my-4 overflow-x-auto text-charcoal">${trimmed}</pre>`
+      );
+    }
     return id;
   });
 
