@@ -47,6 +47,123 @@ function ConnectionChip({
   );
 }
 
+function ClayMascot({ title }: { title: string }) {
+  const t = title.toLowerCase();
+  
+  if (t.includes("docker")) {
+    return (
+      <svg viewBox="0 0 100 80" className="w-14 h-14 drop-shadow-sm shrink-0 select-none">
+        <defs>
+          <radialGradient id="clay-body-docker" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#fefeff" />
+            <stop offset="30%" stopColor="#dbeafe" />
+            <stop offset="85%" stopColor="#93c5fd" />
+            <stop offset="100%" stopColor="#3b82f6" />
+          </radialGradient>
+          <linearGradient id="docker-box" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="100%" stopColor="#0284c7" />
+          </linearGradient>
+        </defs>
+        <circle cx="35" cy="50" r="18" fill="url(#clay-body-docker)" />
+        <circle cx="28" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        <circle cx="42" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        <circle cx="31" cy="46" r="1.5" fill="#1e293b" />
+        <circle cx="39" cy="46" r="1.5" fill="#1e293b" />
+        <path d="M 33 52 Q 35 53 37 52" stroke="#1e293b" strokeWidth="1" strokeLinecap="round" fill="none" />
+        <path d="M 35 32 Q 34 26 31 23" stroke="#0284c7" strokeWidth="1.5" fill="none" />
+        <path d="M 31 23 C 26 19 28 15 33 17 C 37 19 35 24 31 23 Z" fill="#38bdf8" />
+        
+        <rect x="58" y="40" width="22" height="18" rx="3" fill="url(#docker-box)" />
+        <rect x="62" y="32" width="6" height="5" rx="1" fill="#0284c7" />
+        <rect x="70" y="32" width="6" height="5" rx="1" fill="#0284c7" />
+        <ellipse cx="69" cy="49" rx="7" ry="3" fill="#ffffff" opacity="0.8" />
+      </svg>
+    );
+  }
+  
+  if (t.includes("tailwind")) {
+    return (
+      <svg viewBox="0 0 100 80" className="w-14 h-14 drop-shadow-sm shrink-0 select-none">
+        <defs>
+          <radialGradient id="clay-body-tw" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#fdfcfb" />
+            <stop offset="30%" stopColor="#d1fae5" />
+            <stop offset="85%" stopColor="#a7f3d0" />
+            <stop offset="100%" stopColor="#34d399" />
+          </radialGradient>
+        </defs>
+        <circle cx="35" cy="50" r="18" fill="url(#clay-body-tw)" />
+        <circle cx="28" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        <circle cx="42" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        <circle cx="31" cy="46" r="1.5" fill="#1e293b" />
+        <circle cx="39" cy="46" r="1.5" fill="#1e293b" />
+        <path d="M 33 52 Q 35 53 37 52" stroke="#1e293b" strokeWidth="1" strokeLinecap="round" fill="none" />
+        <path d="M 35 32 Q 34 26 31 23" stroke="#047857" strokeWidth="1.5" fill="none" />
+        <path d="M 31 23 C 26 19 28 15 33 17 C 37 19 35 24 31 23 Z" fill="#34d399" />
+        
+        <g opacity="0.8">
+          <rect x="58" y="44" width="22" height="15" rx="2" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" />
+          <rect x="61" y="40" width="22" height="15" rx="2" fill="#f8fafc" stroke="#94a3b8" strokeWidth="1" />
+          <rect x="64" y="36" width="22" height="15" rx="2" fill="#e2e8f0" stroke="#64748b" strokeWidth="1" />
+        </g>
+      </svg>
+    );
+  }
+  
+  if (t.includes("sql") || t.includes("index")) {
+    return (
+      <svg viewBox="0 0 100 80" className="w-14 h-14 drop-shadow-sm shrink-0 select-none">
+        <defs>
+          <radialGradient id="clay-body-sql" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#fdfcfb" />
+            <stop offset="30%" stopColor="#fef3c7" />
+            <stop offset="85%" stopColor="#fde68a" />
+            <stop offset="100%" stopColor="#f59e0b" />
+          </radialGradient>
+        </defs>
+        <circle cx="35" cy="50" r="18" fill="url(#clay-body-sql)" />
+        <circle cx="28" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        <circle cx="42" cy="50" r="3" fill="#f43f5e" opacity="0.3" filter="blur(0.5px)" />
+        
+        <circle cx="31" cy="46" r="4.5" stroke="#1e293b" strokeWidth="1" fill="none" />
+        <circle cx="39" cy="46" r="4.5" stroke="#1e293b" strokeWidth="1" fill="none" />
+        <line x1="35.5" y1="46" x2="36.5" y2="46" stroke="#1e293b" strokeWidth="1.2" />
+        <circle cx="31" cy="46" r="1" fill="#1e293b" />
+        <circle cx="39" cy="46" r="1" fill="#1e293b" />
+        
+        <path d="M 33 54 Q 35 55 37 54" stroke="#1e293b" strokeWidth="1" strokeLinecap="round" fill="none" />
+        <path d="M 35 32 Q 34 26 31 23" stroke="#b45309" strokeWidth="1.5" fill="none" />
+        <path d="M 31 23 C 26 19 28 15 33 17 C 37 19 35 24 31 23 Z" fill="#fbbf24" />
+        
+        <path d="M 56 46 L 70 42 L 78 48 L 64 52 Z" fill="#b91c1c" />
+        <path d="M 58 48 L 70 44 L 76 49 L 64 53 Z" fill="#ffffff" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 100 80" className="w-12 h-12 drop-shadow-sm shrink-0 select-none">
+      <defs>
+        <radialGradient id="clay-body-default" cx="35%" cy="30%" r="65%">
+          <stop offset="0%" stopColor="#fdfcfb" />
+          <stop offset="30%" stopColor="#f1f5f9" />
+          <stop offset="85%" stopColor="#cbd5e1" />
+          <stop offset="100%" stopColor="#94a3b8" />
+        </radialGradient>
+      </defs>
+      <circle cx="50" cy="45" r="18" fill="url(#clay-body-default)" />
+      <circle cx="43" cy="45" r="3" fill="#f43f5e" opacity="0.35" filter="blur(0.5px)" />
+      <circle cx="57" cy="45" r="3" fill="#f43f5e" opacity="0.35" filter="blur(0.5px)" />
+      <circle cx="46" cy="41" r="1.5" fill="#1e293b" />
+      <circle cx="54" cy="41" r="1.5" fill="#1e293b" />
+      <path d="M 48 47 Q 50 48 52 47" stroke="#1e293b" strokeWidth="1" strokeLinecap="round" fill="none" />
+      <path d="M 50 27 Q 48 22 45 19" stroke="#64748b" strokeWidth="1.5" fill="none" />
+      <path d="M 45 19 C 41 16 42 12 47 14 C 51 16 49 20 45 19 Z" fill="#cbd5e1" />
+    </svg>
+  );
+}
+
 export default function NoteCard({
   note,
   linkedNotes,
@@ -143,13 +260,16 @@ export default function NoteCard({
         </div>
 
         {/* note content */}
-        <div className="cursor-pointer" onClick={() => onEdit(note)}>
-          <h3 className="font-serif text-xl font-semibold text-charcoal mb-2 line-clamp-2 leading-snug">
-            {note.title}
-          </h3>
-          <p className="text-slate text-sm font-sans font-light leading-relaxed line-clamp-3 mb-4">
-            {getExcerpt(note.content) || <span className="italic text-slate/40">empty note...</span>}
-          </p>
+        <div className="cursor-pointer flex justify-between items-start gap-4 mb-4" onClick={() => onEdit(note)}>
+          <div className="flex-1">
+            <h3 className="font-serif text-xl font-semibold text-charcoal mb-2 line-clamp-2 leading-snug">
+              {note.title}
+            </h3>
+            <p className="text-slate text-sm font-sans font-light leading-relaxed line-clamp-3">
+              {getExcerpt(note.content) || <span className="italic text-slate/40">empty note...</span>}
+            </p>
+          </div>
+          <ClayMascot title={note.title} />
         </div>
 
         {/* tags list */}
