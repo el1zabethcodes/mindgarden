@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Eye, Edit3, Hash, Link2, HelpCircle } from "lucide-react";
 import { Note, NoteStatus, NoteCreate, NoteUpdate } from "../lib/types";
@@ -95,6 +95,21 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose, triggerSave]);
+
+  // scan content for references to other notes
+  const suggestedLinks = useMemo(() => {
+    if (!content.trim() || allNotes.length === 0) return [];
+    
+    return allNotes.filter((n) => {
+      if (note && n.id === note.id) return false;
+      if (linkedIds.includes(n.id)) return false;
+      
+      // look for occurrence of other note titles in content (case-insensitive)
+      const escapedTitle = n.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+      const regex = new RegExp(`\\b${escapedTitle}\\b`, "i");
+      return regex.test(content);
+    });
+  }, [content, allNotes, note, linkedIds]);
 
   // tag list handlers
   const handleAddTag = () => {
@@ -309,6 +324,27 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
                   </button>
                 </div>
               </div>
+
+              {/* suggested links */}
+              {suggestedLinks.length > 0 && (
+                <div className="space-y-2 pt-4 border-t border-slate-100/80">
+                  <label className="block text-[11px] uppercase tracking-wider font-semibold text-amber-700/85 flex items-center gap-1 font-sans">
+                    ✨ Suggested Connections
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 p-2.5 bg-amber-50/40 border border-amber-200/25 rounded-xl">
+                    {suggestedLinks.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => setLinkedIds([...linkedIds, n.id])}
+                        className="text-[10px] font-medium text-amber-800 bg-white hover:bg-amber-50 border border-amber-200/50 px-2 py-0.5 rounded-full cursor-pointer transition-colors flex items-center gap-1 font-sans"
+                      >
+                        <span>+ Link</span> {n.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* interlinking connections selector */}
               {allNotes.length > 0 && (

@@ -12,6 +12,7 @@ import EmptyState from "../components/EmptyState";
 import ActivityCalendar from "../components/ActivityCalendar";
 import KanbanBoard from "../components/KanbanBoard";
 import ConnectionGraph from "../components/ConnectionGraph";
+import CommandPalette from "../components/CommandPalette";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -23,8 +24,14 @@ export default function Home() {
   const [status, setStatus] = useState("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
+  // presets filter: "all" | "orphan" | "hub" | "code"
+  const [selectedPreset, setSelectedPreset] = useState<"all" | "orphan" | "hub" | "code">("all");
+
   // view modes
   const [viewMode, setViewMode] = useState<"grid" | "board" | "graph">("grid");
+
+  // command palette modal state
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   // drawer state
   const [activeNote, setActiveNote] = useState<Note | null>(null);
@@ -67,6 +74,18 @@ export default function Home() {
   useEffect(() => {
     refreshData();
   }, [refreshData]);
+
+  // global shortcut Ctrl+K / Cmd+K to open Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // CRUD handlers
   const handlePlantNote = () => {
@@ -139,6 +158,20 @@ export default function Home() {
   const growingCount = notes.filter((n) => n.status === "growing").length;
   const evergreenCount = notes.filter((n) => n.status === "evergreen").length;
 
+  // client side filter presets
+  const finalDisplayNotes = notes.filter((n) => {
+    if (selectedPreset === "orphan") {
+      return !n.linked_note_ids || n.linked_note_ids.length === 0;
+    }
+    if (selectedPreset === "hub") {
+      return n.linked_note_ids && n.linked_note_ids.length > 2;
+    }
+    if (selectedPreset === "code") {
+      return n.content && n.content.includes("```");
+    }
+    return true;
+  });
+
   // mapping title for connections chip display
   const allNotesCompact = notes.map((n) => ({ id: n.id, title: n.title }));
 
@@ -155,6 +188,7 @@ export default function Home() {
         selectedStatus={status}
         onStatusChange={setStatus}
         onPlantNote={handlePlantNote}
+        onToggleCommandPalette={() => setIsCommandPaletteOpen((prev) => !prev)}
       />
 
       {/* activity dashboard row */}
@@ -181,6 +215,27 @@ export default function Home() {
         </div>
       </div>
 
+      {/* filter presets row */}
+      <div className="w-full max-w-7xl mx-auto px-4 mb-6 flex flex-wrap gap-2 text-xs font-sans">
+        <span className="text-slate/40 flex items-center font-medium mr-1 uppercase tracking-wider text-[10px]">Filter Presets:</span>
+        {(["all", "orphan", "hub", "code"] as const).map((preset) => (
+          <button
+            key={preset}
+            onClick={() => setSelectedPreset(preset)}
+            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer text-[11px] ${
+              selectedPreset === preset
+                ? "bg-sage text-white border-sage font-medium shadow-sm"
+                : "bg-white/70 text-slate border-slate-200/50 hover:bg-white"
+            }`}
+          >
+            {preset === "all" && "✨ All Notes"}
+            {preset === "orphan" && "🕸️ Orphan Notes (0 links)"}
+            {preset === "hub" && "🐙 Hub Notes (>2 links)"}
+            {preset === "code" && "💻 Code Snippets"}
+          </button>
+        ))}
+      </div>
+
       {/* tag strip */}
       <TagFilter
         tags={tags}
@@ -197,11 +252,11 @@ export default function Home() {
               Tending the garden...
             </span>
           </div>
-        ) : notes.length === 0 ? (
+        ) : finalDisplayNotes.length === 0 ? (
           <EmptyState onPlantNote={handlePlantNote} />
         ) : viewMode === "board" ? (
           <KanbanBoard
-            notes={notes}
+            notes={finalDisplayNotes}
             onMoveNote={handleMoveNote}
             onEdit={handleEditNote}
             onDelete={handleDeleteNote}
@@ -210,7 +265,7 @@ export default function Home() {
           />
         ) : viewMode === "graph" ? (
           <ConnectionGraph
-            notes={notes}
+            notes={finalDisplayNotes}
             onSelectNote={handleSelectLinkedNote}
           />
         ) : (
@@ -219,15 +274,15 @@ export default function Home() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             <AnimatePresence mode="popLayout">
-              {notes.map((note) => {
+              {finalDisplayNotes.map((note) => {
                 // map linked note ids to titles
                 const linkedNotes = note.linked_note_ids
                   ? note.linked_note_ids
                       .map((id) => {
                         const match = notes.find((n) => n.id === id);
-                        return match ? { id: match.id, title: match.title } : null;
+                        return match ? { id: match.id, title: match.title, content: match.content } : null;
                       })
-                      .filter((n): n is { id: string; title: string } => n !== null)
+                      .filter((n): n is { id: string; title: string; content: string } => n !== null)
                   : [];
 
                 return (
@@ -262,6 +317,15 @@ export default function Home() {
         onClose={() => setIsDrawerOpen(false)}
         onSave={handleSaveNote}
         allNotes={allNotesCompact}
+      />
+
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        notes={notes}
+        onSelectNote={handleSelectLinkedNote}
+        onPlantNote={handlePlantNote}
+        onSwitchView={setViewMode}
       />
     </div>
   );

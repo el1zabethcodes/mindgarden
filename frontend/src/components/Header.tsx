@@ -13,6 +13,7 @@ interface HeaderProps {
   selectedStatus: string;
   onStatusChange: (status: string) => void;
   onPlantNote: () => void;
+  onToggleCommandPalette: () => void;
 }
 
 export default function Header({
@@ -25,6 +26,7 @@ export default function Header({
   selectedStatus,
   onStatusChange,
   onPlantNote,
+  onToggleCommandPalette,
 }: HeaderProps) {
   return (
     <header className="w-full max-w-7xl mx-auto px-4 pt-10 pb-6">
@@ -114,8 +116,15 @@ export default function Header({
           placeholder="Search thoughts, links, and ideas..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-3.5 bg-white/70 focus:bg-white/90 border border-slate-200/50 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sage/40 shadow-sm transition-all text-sm text-charcoal font-sans"
+          className="w-full pl-11 pr-16 py-3.5 bg-white/70 focus:bg-white/90 border border-slate-200/50 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sage/40 shadow-sm transition-all text-sm text-charcoal font-sans"
         />
+        <button
+          onClick={onToggleCommandPalette}
+          className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] bg-slate-100 hover:bg-slate-200 text-slate border border-slate-200 rounded font-mono flex items-center gap-0.5 cursor-pointer shadow-sm transition-all"
+          title="open command palette (Cmd+K)"
+        >
+          <span>⌘</span><span>K</span>
+        </button>
       </div>
     </header>
   );
