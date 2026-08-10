@@ -25,7 +25,7 @@ export default function NoteCard({
   // strip markdown characters for a clean preview snippet
   const getExcerpt = (markdown: string) => {
     if (!markdown) return "";
-    let cleanText = markdown
+    const cleanText = markdown
       .replace(/[#*`_\-\[\]\(\)]/g, "") // remove md format chars
       .replace(/\n+/g, " ")             // replace newlines with space
       .trim();

@@ -34,7 +34,7 @@ export default function Home() {
   }, [search]);
 
   // fetch data function
-  const refreshData = async () => {
+  const refreshData = React.useCallback(async () => {
     try {
       const activeStatus = status === "all" ? undefined : status;
       const activeTag = selectedTag || undefined;
@@ -55,12 +55,12 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [debouncedSearch, status, selectedTag]);
 
   // refresh notes when filters change
   useEffect(() => {
     refreshData();
-  }, [debouncedSearch, status, selectedTag]);
+  }, [refreshData]);
 
   // CRUD handlers
   const handlePlantNote = () => {

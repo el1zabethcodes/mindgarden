@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye, Edit3, Plus, Hash, Link2, HelpCircle } from "lucide-react";
+import { X, Eye, Edit3, Hash, Link2, HelpCircle } from "lucide-react";
 import { Note, NoteStatus, NoteCreate, NoteUpdate } from "../lib/types";
 import { parseMarkdown } from "../lib/utils";
 
@@ -66,6 +66,20 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
     }
   }, [isOpen, note]);
 
+  const triggerSave = useCallback(() => {
+    if (!title.trim()) return;
+    const payload = {
+      title: title.trim(),
+      content,
+      status,
+      mood_color: moodColor,
+      is_favorite: isFavorite,
+      tags,
+      linked_note_ids: linkedIds,
+    };
+    onSave(payload);
+  }, [title, content, status, moodColor, isFavorite, tags, linkedIds, onSave]);
+
   // keydown hotkeys: Esc to close, Ctrl+Enter to save
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -80,21 +94,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, title, content, status, moodColor, isFavorite, tags, linkedIds]);
-
-  const triggerSave = () => {
-    if (!title.trim()) return;
-    const payload = {
-      title: title.trim(),
-      content,
-      status,
-      mood_color: moodColor,
-      is_favorite: isFavorite,
-      tags,
-      linked_note_ids: linkedIds,
-    };
-    onSave(payload);
-  };
+  }, [isOpen, onClose, triggerSave]);
 
   // tag list handlers
   const handleAddTag = () => {
