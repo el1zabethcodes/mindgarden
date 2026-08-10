@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Eye, Edit3, Hash, Link2, HelpCircle } from "lucide-react";
+import { X, Eye, Edit3, Hash, Link2, HelpCircle, Layout, List } from "lucide-react";
 import { Note, NoteStatus, NoteCreate, NoteUpdate } from "../lib/types";
 import { parseMarkdown } from "../lib/utils";
+import MermaidRenderer from "./MermaidRenderer";
 
 interface DrawerProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [linkedIds, setLinkedIds] = useState<string[]>([]);
-  const [mode, setMode] = useState<"write" | "preview">("write");
+  const [mode, setMode] = useState<"write" | "split" | "preview">("write");
 
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -108,8 +109,21 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
       const escapedTitle = n.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
       const regex = new RegExp(`\\b${escapedTitle}\\b`, "i");
       return regex.test(content);
-    });
   }, [content, allNotes, note, linkedIds]);
+
+  // generate table of contents headings
+  const tocHeadings = useMemo(() => {
+    const matches = content.match(/^(#{1,3})\s+(.*)$/gm);
+    if (!matches) return [];
+    return matches.map((m) => {
+      const parts = m.match(/^(#{1,3})\s+(.*)$/);
+      if (!parts) return { level: 1, text: "" };
+      return {
+        level: parts[1].length,
+        text: parts[2].trim()
+      };
+    });
+  }, [content]);
 
   // tag list handlers
   const handleAddTag = () => {
@@ -254,6 +268,17 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
                 </button>
                 <button
                   type="button"
+                  onClick={() => setMode("split")}
+                  className={`px-4 py-2 text-xs font-medium font-sans cursor-pointer flex items-center gap-1.5 border-b-2 transition-all ${
+                    mode === "split"
+                      ? "border-sage text-charcoal font-semibold"
+                      : "border-transparent text-slate/50 hover:text-slate"
+                  }`}
+                >
+                  <Layout className="w-3.5 h-3.5" /> split
+                </button>
+                <button
+                  type="button"
                   onClick={() => setMode("preview")}
                   className={`px-4 py-2 text-xs font-medium font-sans cursor-pointer flex items-center gap-1.5 border-b-2 transition-all ${
                     mode === "preview"
@@ -266,19 +291,63 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
               </div>
 
               {/* body content */}
-              <div className="min-h-[200px]">
-                {mode === "write" ? (
+              <div className="min-h-[250px] flex flex-col">
+                {/* table of contents overlay / sidebar */}
+                {mode !== "write" && tocHeadings.length > 0 && (
+                  <div className="bg-slate-50/65 border border-slate-200/20 p-3 rounded-xl mb-4 text-[11px] font-sans max-h-36 overflow-y-auto">
+                    <div className="flex items-center gap-1 font-bold uppercase tracking-wider text-slate/50 mb-1.5">
+                      <List className="w-3 h-3" /> Outline (Jump to)
+                    </div>
+                    <ul className="space-y-1">
+                      {tocHeadings.map((h, idx) => (
+                        <li
+                          key={idx}
+                          style={{ paddingLeft: `${(h.level - 1) * 8}px` }}
+                          className="text-slate hover:text-sage-dark cursor-pointer transition-colors truncate"
+                          onClick={() => {
+                            const headers = document.querySelectorAll("h1, h2, h3");
+                            for (let i = 0; i < headers.length; i++) {
+                              if (headers[i].textContent === h.text) {
+                                headers[i].scrollIntoView({ behavior: "smooth", block: "center" });
+                                break;
+                              }
+                            }
+                          }}
+                        >
+                          {h.level === 1 ? "• " : h.level === 2 ? "◦ " : "▪ "} {h.text}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {mode === "write" && (
                   <textarea
                     placeholder="Pour your thoughts out here... (Markdown supported)"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     className="w-full h-64 border-none focus:outline-none resize-none text-sm leading-relaxed text-charcoal placeholder-slate-300 font-sans"
                   />
-                ) : (
-                  <div
-                    className="prose prose-slate prose-sm max-w-none min-h-[16rem]"
-                    dangerouslySetInnerHTML={{ __html: parseMarkdown(content) }}
-                  />
+                )}
+
+                {mode === "split" && (
+                  <div className="flex gap-6 h-[400px] border border-slate-200/30 rounded-2xl p-4 bg-slate-50/20">
+                    <textarea
+                      placeholder="Write markdown here..."
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      className="w-1/2 h-full border-none focus:outline-none resize-none text-sm leading-relaxed text-charcoal placeholder-slate-300 font-sans border-r border-slate-200/50 pr-4"
+                    />
+                    <div className="w-1/2 h-full overflow-y-auto pl-2 prose prose-slate prose-sm max-w-none">
+                      <MermaidRenderer html={parseMarkdown(content)} />
+                    </div>
+                  </div>
+                )}
+
+                {mode === "preview" && (
+                  <div className="prose prose-slate prose-sm max-w-none min-h-[16rem] overflow-y-auto">
+                    <MermaidRenderer html={parseMarkdown(content)} />
+                  </div>
                 )}
               </div>
 
