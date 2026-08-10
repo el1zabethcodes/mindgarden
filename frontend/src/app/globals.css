@@ -54,9 +54,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  /* soft sage dot grid background pattern */
-  background-image: radial-gradient(rgba(135, 169, 135, 0.12) 1.5px, transparent 0);
-  background-size: 32px 32px;
+  /* technical engineering grid pattern with low opacity */
+  background-image: 
+    linear-gradient(rgba(135, 169, 135, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(135, 169, 135, 0.025) 1px, transparent 1px),
+    radial-gradient(rgba(135, 169, 135, 0.09) 1.5px, transparent 0);
+  background-size: 64px 64px, 64px 64px, 16px 16px;
   background-attachment: fixed;
 }
 

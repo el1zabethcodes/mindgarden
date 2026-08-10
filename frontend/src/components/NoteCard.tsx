@@ -90,7 +90,12 @@ export default function NoteCard({
       <div>
         {/* status and fav */}
         <div className="flex items-center justify-between mb-4">
-          {renderStatusBadge(note.status)}
+          <div className="flex items-center gap-2">
+            {renderStatusBadge(note.status)}
+            <span className="font-mono text-[9px] text-slate/40 bg-slate-100/40 px-1.5 py-0.5 rounded border border-slate-200/10">
+              #{note.id.substring(0, 7)}
+            </span>
+          </div>
           
           <button
             onClick={() => onToggleFavorite(note)}
@@ -153,7 +158,13 @@ export default function NoteCard({
 
         {/* time and actions */}
         <div className="flex items-center justify-between text-xs text-slate/50 font-sans">
-          <span>tended {formatRelativeTime(note.updated_at)}</span>
+          <div className="flex items-center gap-1.5 font-mono text-[9px] text-slate/45">
+            <span>tended {formatRelativeTime(note.updated_at)}</span>
+            <span>•</span>
+            <span>{note.linked_note_ids?.length || 0} links</span>
+            <span>•</span>
+            <span>{Math.max(1, Math.ceil((note.content || "").split(/\s+/).length / 150))}m read</span>
+          </div>
           
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button
