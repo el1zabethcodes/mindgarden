@@ -18,101 +18,266 @@ def seed_db():
         db.commit()
         
         print("seeding tags...")
-        # let's pre-create some tags
         tags = [
-            ("philosophy", "lavender_cool"),
-            ("design", "sage"),
-            ("architecture", "slate"),
-            ("recipes", "rose"),
-            ("productivity", "mint")
+            ("backend", "sage"),
+            ("frontend", "mint"),
+            ("database", "slate"),
+            ("architecture", "lavender_cool"),
+            ("caching", "peach"),
+            ("microservices", "rose")
         ]
-        tag_map = {}
         for name, col in tags:
             tag = models.Tag(id=crud.slugify(name), name=name, color=col)
             db.add(tag)
-            tag_map[name] = tag
         db.commit()
         
-        print("seeding notes...")
+        print("seeding technical notes...")
         
-        # note 1: design philosophy
         n1 = crud.create_note(db, schemas.NoteCreate(
-            title="Soft Minimalist Design",
-            content="""The essence of soft minimalism lies in the intentionality of space. 
+            title="Async Event Loop & FastAPI Architecture",
+            content="""FastAPI is built on Starlette and uses Python's `asyncio` event loop. It enables highly concurrent I/O-bound systems by suspending coroutines during operations like fetching data or querying databases.
 
-Instead of stark, cold environments, we focus on warm natural materials, soft lighting, and tactical textures. 
+### Concurrency Example
+```python
+import asyncio
+from fastapi import FastAPI
 
-### Key Principles
-1. **subtle palettes**: off-whites, warm sands, sage greens.
-2. **tactile materials**: linen, unfinished oak, matte ceramics.
-3. **negative space**: letting elements breathe.
+app = FastAPI()
 
-*“minimalism is not the lack of something. it's the perfect amount of something.”*""",
+@app.get("/compute")
+async def handle_request():
+    # non-blocking wait suspends this coroutine
+    await asyncio.sleep(0.05)
+    return {"status": "completed"}
+```
+
+Avoid running CPU-bound operations in the main event loop, as they will block all other concurrent requests.""",
             status="evergreen",
             mood_color="sage",
             is_favorite=True,
-            tags=["design", "philosophy"]
+            tags=["backend", "architecture"]
         ))
-        
-        # note 2: book recommendations
+
         n2 = crud.create_note(db, schemas.NoteCreate(
-            title="Reading List: Space and Calm",
-            content="""A curated collection of literature that explores architecture, mindfulness, and slow living:
+            title="Postgres Connection Pooling & Indexes",
+            content="""Connection pooling reuse existing DB sockets rather than establishing new handshakes for each transaction. In FastAPI apps, SQLAlchemy's `QueuePool` is the default.
 
-* **The Poetics of Space** by Gaston Bachelard — an beautiful exploration of how we experience intimate spaces (homes, drawers, corners).
-* **Wabi-Sabi for Artists, Designers, Poets & Philosophers** by Leonard Koren — the classic treatise on finding beauty in imperfection and impermanence.
-* **In Praise of Shadows** by Jun'ichirō Tanizaki — on the aesthetics of light, shadow, and traditional Japanese architecture.
+### Indexes & Pool Configuration
+```sql
+-- create a composite index for fast compound queries
+CREATE INDEX idx_notes_status_updated ON notes (status, updated_at DESC);
+```
 
-highly recommend reading these during quiet mornings.""",
+```python
+from sqlalchemy import create_engine
+
+# configured for low latency pooled connections
+engine = create_engine(
+    "postgresql://user:pass@localhost/db",
+    pool_size=20,
+    max_overflow=10,
+    pool_timeout=30
+)
+```""",
             status="growing",
             mood_color="slate",
-            tags=["books", "philosophy", "architecture"]
+            tags=["database", "backend"]
         ))
-        
-        # note 3: mint tea recipe
+
         n3 = crud.create_note(db, schemas.NoteCreate(
-            title="Cold Mint & Sage Infusion",
-            content="""A refreshing, calm herbal drink to tend the mind garden:
+            title="Event-Driven Microservices with RabbitMQ",
+            content="""Event-driven architectures decouple services by communicating asynchronously via message brokers. RabbitMQ uses exchanges and bindings to route events.
 
-### Ingredients
-* 5-6 fresh mint leaves (bruised slightly)
-* 2 dried sage leaves
-* 1 slice of lemon
-* hot water (85°C / 185°F)
+### RabbitMQ Publisher
+```python
+import pika
 
-### Instructions
-1. steep the herbs in hot water for exactly 5 minutes.
-2. pour over ice in a tall glass.
-3. sweeten with a drop of raw honey if desired.
+connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+channel = connection.channel()
 
-perfect for hot afternoon coding sessions.""",
-            status="seed",
-            mood_color="mint",
-            tags=["recipes"]
+# declare exchange and publish task message
+channel.exchange_declare(exchange='events', exchange_type='topic')
+channel.basic_publish(
+    exchange='events',
+    routing_key='note.created',
+    body='{"id": "note-123", "action": "plant"}'
+)
+connection.close()
+```""",
+            status="growing",
+            mood_color="rose",
+            tags=["microservices", "architecture"]
         ))
-        
-        # note 4: knowledge gardening
+
         n4 = crud.create_note(db, schemas.NoteCreate(
-            title="The Concept of Knowledge Gardening",
-            content="""Unlike traditional rigid note-taking systems, a digital garden focuses on growth over time. 
+            title="Redis Cache Strategies & Invalidation",
+            content="""Caching increases database read performance. Common strategies are Cache-Aside (Lazy Loading) and Write-Through caching.
 
-Notes are treated like plants:
-* 🌱 **seeds**: raw, unpolished ideas or highlights.
-* 🌿 **growing**: notes that are expanding and starting to connect.
-* 🌳 **evergreen**: well-researched, stable ideas with rich interlinks.
+### Cache-Aside Implementation
+```python
+import json
+import redis
 
-connections form naturally as you link notes together, creating a web of personal intelligence.""",
+r = redis.Redis(host='localhost', port=6379, db=0)
+
+def get_note_data(note_id: str):
+    # check cache first
+    cached = r.get(f"note:{note_id}")
+    if cached:
+        return json.loads(cached)
+    
+    # fallback to database
+    db_data = fetch_from_db(note_id)
+    r.setex(f"note:{note_id}", 3600, json.dumps(db_data))
+    return db_data
+```""",
             status="evergreen",
-            mood_color="lavender_cool",
-            is_favorite=True,
-            tags=["philosophy", "productivity"]
+            mood_color="peach",
+            tags=["caching", "backend"]
         ))
-        
-        print("setting up connections...")
-        # link note 1 with note 2 and note 4
+
+        n5 = crud.create_note(db, schemas.NoteCreate(
+            title="React 19 Server Components & Hydration",
+            content="""React 19 splits components into Server (RSC) and Client Components. RSCs render exclusively on the server, saving bundle size.
+
+### Server & Client Split
+```typescript
+// server component
+import { getDbNotes } from "./api";
+import NoteCardList from "./NoteCardList"; // client component
+
+export default async function Page() {
+  const notes = await getDbNotes();
+  return <NoteCardList initialNotes={notes} />;
+}
+```
+
+Client components must include the `"use client"` directive at the very top of the file.""",
+            status="evergreen",
+            mood_color="mint",
+            is_favorite=True,
+            tags=["frontend"]
+        ))
+
+        n6 = crud.create_note(db, schemas.NoteCreate(
+            title="Next.js 15 App Router Best Practices",
+            content="""Next.js 15 leverages React 19's Server Components model. Data fetching should be co-located inside the layout/pages using async Server Components.
+
+### Caching and Revalidation
+```typescript
+// cache fetch response for 60 seconds
+const response = await fetch("https://api.garden.com/notes", {
+  next: { revalidate: 60 }
+});
+```
+
+Using dynamic functions (like `cookies()` or `headers()`) forces the route into dynamic rendering.""",
+            status="growing",
+            mood_color="slate",
+            tags=["frontend", "architecture"]
+        ))
+
+        n7 = crud.create_note(db, schemas.NoteCreate(
+            title="State Machines in Complex UI Workflows",
+            content="""State machines prevent impossible UI states (e.g. loading and error showing at the same time).
+
+### Simple State Reducer
+```typescript
+type UIState = "idle" | "loading" | "success" | "error";
+type UIAction = { type: "FETCH" } | { type: "RESOLVE" } | { type: "REJECT" };
+
+function uiReducer(state: UIState, action: UIAction): UIState {
+  switch (state) {
+    case "idle":
+      if (action.type === "FETCH") return "loading";
+      return state;
+    case "loading":
+      if (action.type === "RESOLVE") return "success";
+      if (action.type === "REJECT") return "error";
+      return state;
+    default:
+      return state;
+  }
+}
+```""",
+            status="seed",
+            mood_color="lavender_cool",
+            tags=["frontend"]
+        ))
+
+        n8 = crud.create_note(db, schemas.NoteCreate(
+            title="SQL Indexes Deep Dive",
+            content="""Indexes improve query performance but add overhead to inserts and updates. 
+
+### Index Types
+- **B-Tree**: default index type, fits range queries.
+- **Hash**: fast for exact matches (`=`).
+- **GIN**: perfect for array columns or full-text search.
+
+```sql
+-- GIN index for text search
+CREATE INDEX idx_notes_search ON notes USING gin(to_tsvector('english', content));
+```""",
+            status="seed",
+            mood_color="slate",
+            tags=["database"]
+        ))
+
+        n9 = crud.create_note(db, schemas.NoteCreate(
+            title="Tailwind CSS v4 Engineering Architecture",
+            content="""Tailwind CSS v4 uses a new compiler engine built in Rust. It compiles CSS variables dynamically in the browser, simplifying configurations.
+
+Instead of `tailwind.config.js`, configurations are styled with direct CSS `@theme` rules.""",
+            status="seed",
+            mood_color="sage",
+            tags=["frontend", "design"]
+        ))
+
+        n10 = crud.create_note(db, schemas.NoteCreate(
+            title="Docker Container Multi-Stage Builds",
+            content="""Multi-stage builds reduce docker image size by discarding build tools in the final runner stage.
+
+### Dockerfile
+```dockerfile
+# stage 1: builder
+FROM node:20 AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+# stage 2: runner
+FROM node:20-alpine
+WORKDIR /app
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/package*.json ./
+RUN npm install --production
+EXPOSE 3000
+CMD ["npm", "start"]
+```""",
+            status="evergreen",
+            mood_color="slate",
+            tags=["architecture"]
+        ))
+
+        print("linking technical note connections...")
+        # n1 (FastAPI) links to n2 (Postgres) and n4 (Redis)
         crud.set_note_links(db, n1.id, [n2.id, n4.id])
-        # link note 2 with note 4
-        crud.set_note_links(db, n2.id, [n4.id, n1.id])
+        # n2 (Postgres) links to n1 (FastAPI)
+        crud.set_note_links(db, n2.id, [n1.id])
+        # n3 (RabbitMQ) links to n4 (Redis)
+        crud.set_note_links(db, n3.id, [n4.id])
+        # n4 (Redis) links to n1 (FastAPI) and n3 (RabbitMQ)
+        crud.set_note_links(db, n4.id, [n1.id, n3.id])
+        # n5 (React 19) links to n6 (Next.js) and n7 (State Machines)
+        crud.set_note_links(db, n5.id, [n6.id, n7.id])
+        # n6 (Next.js) links to n5 (React 19)
+        crud.set_note_links(db, n6.id, [n5.id])
+        # n7 (State Machines) links to n5 (React 19)
+        crud.set_note_links(db, n7.id, [n5.id])
+        
+        # Note: n8 (SQL Indexes), n9 (Tailwind), n10 (Docker) remain orphans (0 connections) to test the orphan filter!
         
         print("database seeded successfully!")
         
