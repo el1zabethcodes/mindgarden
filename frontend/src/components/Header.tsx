@@ -33,12 +33,11 @@ export default function Header({
       {/* top brand and cta */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="font-serif text-4xl md:text-5xl text-charcoal tracking-tight font-medium">
-            Mindgarden
+          <h1 className="font-serif text-3xl md:text-4xl text-charcoal tracking-tight font-bold">
+            Good morning, Elizaveta 🌿
           </h1>
-          <p className="text-slate text-sm mt-2 flex items-center gap-1.5 font-sans">
-            <span className="w-2 h-2 rounded-full bg-sage animate-pulse"></span>
-            {notesCount} {notesCount === 1 ? "note" : "notes"} planted in your personal garden
+          <p className="text-slate text-sm mt-1 font-sans font-light">
+            Let’s grow something wonderful today.
           </p>
         </div>
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../lib/api";
 import { Note, Tag, NoteCreate, NoteUpdate, NoteStatus } from "../lib/types";
+import { Sprout, Leaf, TreeDeciduous } from "lucide-react";
 import Header from "../components/Header";
 import TagFilter from "../components/TagFilter";
 import NoteCard from "../components/NoteCard";
@@ -13,6 +14,9 @@ import ActivityCalendar from "../components/ActivityCalendar";
 import KanbanBoard from "../components/KanbanBoard";
 import ConnectionGraph from "../components/ConnectionGraph";
 import CommandPalette from "../components/CommandPalette";
+import Sidebar from "../components/Sidebar";
+import Environment from "../components/Environment";
+import GrowthChart from "../components/GrowthChart";
 import OnboardingTour from "../components/OnboardingTour";
 
 export default function Home() {
@@ -25,29 +29,26 @@ export default function Home() {
   const [status, setStatus] = useState("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  // presets filter: "all" | "orphan" | "hub" | "code"
+  // presets & active nav
   const [selectedPreset, setSelectedPreset] = useState<"all" | "orphan" | "hub" | "code">("all");
+  const [currentNav, setCurrentNav] = useState("Garden");
 
   // view modes
   const [viewMode, setViewMode] = useState<"grid" | "board" | "graph">("grid");
 
-  // command palette modal state
+  // modals
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-
-  // drawer state
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // debounce search queries
+  // debounce search
   useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 250);
+    const t = setTimeout(() => setDebouncedSearch(search), 250);
     return () => clearTimeout(t);
   }, [search]);
 
-  // fetch data function
+  // fetch data
   const refreshData = React.useCallback(async () => {
     try {
       const activeStatus = status === "all" ? undefined : status;
@@ -71,12 +72,11 @@ export default function Home() {
     }
   }, [debouncedSearch, status, selectedTag]);
 
-  // refresh notes when filters change
   useEffect(() => {
     refreshData();
   }, [refreshData]);
 
-  // global shortcut Ctrl+K / Cmd+K to open Command Palette
+  // hotkeys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
@@ -88,7 +88,6 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // CRUD handlers
   const handlePlantNote = () => {
     setActiveNote(null);
     setIsDrawerOpen(true);
@@ -142,7 +141,6 @@ export default function Home() {
     }
   };
 
-  // navigate when clicking internal link chip
   const handleSelectLinkedNote = async (id: string) => {
     try {
       const note = await api.getNote(id);
@@ -153,7 +151,7 @@ export default function Home() {
     }
   };
 
-  // stats calculation
+  // stats
   const totalCount = notes.length;
   const seedCount = notes.filter((n) => n.status === "seed").length;
   const growingCount = notes.filter((n) => n.status === "growing").length;
@@ -173,145 +171,211 @@ export default function Home() {
     return true;
   });
 
-  // mapping title for connections chip display
   const allNotesCompact = notes.map((n) => ({ id: n.id, title: n.title }));
 
   return (
-    <div className="min-h-screen bg-transparent pb-20 selection:bg-sage-light selection:text-sage-dark">
-      {/* navigation and header */}
-      <Header
-        notesCount={totalCount}
-        seedCount={seedCount}
-        growingCount={growingCount}
-        evergreenCount={evergreenCount}
-        searchQuery={search}
-        onSearchChange={setSearch}
-        selectedStatus={status}
-        onStatusChange={setStatus}
-        onPlantNote={handlePlantNote}
-        onToggleCommandPalette={() => setIsCommandPaletteOpen((prev) => !prev)}
+    <div className="min-h-screen bg-transparent pb-32 relative">
+      {/* background animations and decorative shapes */}
+      <Environment />
+
+      {/* left glass navigation sidebar */}
+      <Sidebar
+        currentNav={currentNav}
+        onNavChange={setCurrentNav}
+        progressPercent={Math.min(100, Math.round((evergreenCount / Math.max(1, totalCount)) * 100))}
       />
 
-      {/* activity dashboard row */}
-      <div className="w-full max-w-7xl mx-auto px-4 mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6">
-        <ActivityCalendar notes={notes} />
+      {/* main content (offset by sidebar width) */}
+      <div className="pl-64 z-10 relative">
         
-        {/* view mode selector */}
-        <div className="bg-white/60 backdrop-blur-md border border-slate-200/40 p-1.5 rounded-2xl flex gap-1 shadow-garden self-end md:self-auto font-sans text-xs">
-          {(["grid", "board", "graph"] as const).map((mode) => (
+        {/* Header containing welcome greetings */}
+        <Header
+          notesCount={totalCount}
+          seedCount={seedCount}
+          growingCount={growingCount}
+          evergreenCount={evergreenCount}
+          searchQuery={search}
+          onSearchChange={setSearch}
+          selectedStatus={status}
+          onStatusChange={setStatus}
+          onPlantNote={handlePlantNote}
+          onToggleCommandPalette={() => setIsCommandPaletteOpen((prev) => !prev)}
+        />
+
+        {/* Analytics and interactive charts row */}
+        <div className="w-full max-w-7xl mx-auto px-6 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* stats widgets container */}
+          <div className="lg:col-span-2 bg-white/70 backdrop-blur-md border border-slate-200/30 p-5 rounded-3xl shadow-garden flex flex-col justify-between">
+            <span className="text-slate text-[10px] uppercase tracking-wider font-bold font-sans">
+              Garden Analytics
+            </span>
+            <div className="grid grid-cols-3 gap-4 mt-3">
+              <button
+                onClick={() => setStatus(status === "seed" ? "all" : "seed")}
+                className={`p-4 rounded-2xl border transition-all text-left ${
+                  status === "seed" ? "bg-sage/15 border-sage/30 shadow-sm" : "bg-slate-50/50 border-slate-200/10 hover:bg-white"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold text-slate/50 flex items-center gap-1 font-sans">
+                  <Sprout className="w-3.5 h-3.5 text-sage" /> Seed
+                </div>
+                <div className="font-serif text-3xl font-black text-charcoal mt-1">{seedCount}</div>
+              </button>
+
+              <button
+                onClick={() => setStatus(status === "growing" ? "all" : "growing")}
+                className={`p-4 rounded-2xl border transition-all text-left ${
+                  status === "growing" ? "bg-sage/15 border-sage/30 shadow-sm" : "bg-slate-50/50 border-slate-200/10 hover:bg-white"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold text-slate/50 flex items-center gap-1 font-sans">
+                  <Leaf className="w-3.5 h-3.5 text-sage-medium" /> Growing
+                </div>
+                <div className="font-serif text-3xl font-black text-charcoal mt-1">{growingCount}</div>
+              </button>
+
+              <button
+                onClick={() => setStatus(status === "evergreen" ? "all" : "evergreen")}
+                className={`p-4 rounded-2xl border transition-all text-left ${
+                  status === "evergreen" ? "bg-sage/15 border-sage/30 shadow-sm" : "bg-slate-50/50 border-slate-200/10 hover:bg-white"
+                }`}
+              >
+                <div className="text-[10px] uppercase font-bold text-slate/50 flex items-center gap-1 font-sans">
+                  <TreeDeciduous className="w-3.5 h-3.5 text-sage-dark" /> Evergreen
+                </div>
+                <div className="font-serif text-3xl font-black text-charcoal mt-1">{evergreenCount}</div>
+              </button>
+            </div>
+            
+            {/* simple layout view switchers and calendar logs */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/50">
+              <ActivityCalendar notes={notes} />
+              
+              <div className="bg-slate-100/60 p-1 rounded-2xl flex gap-1 shadow-inner text-xs font-sans">
+                {(["grid", "board", "graph"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer font-medium uppercase tracking-wider text-[10px] ${
+                      viewMode === mode
+                        ? "bg-white text-charcoal shadow-sm font-semibold border border-slate-200/10"
+                        : "text-slate/60 hover:text-slate"
+                    }`}
+                  >
+                    {mode === "grid" && "Grid"}
+                    {mode === "board" && "Board"}
+                    {mode === "graph" && "Graph"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive SVG Leaf-Node Growth Trend Chart */}
+          <GrowthChart />
+        </div>
+
+        {/* Filter presets bar */}
+        <div className="w-full max-w-7xl mx-auto px-6 mb-6 flex flex-wrap gap-2 text-xs font-sans">
+          <span className="text-slate/40 flex items-center font-bold mr-1 uppercase tracking-wider text-[9px]">Filters:</span>
+          {(["all", "orphan", "hub", "code"] as const).map((preset) => (
             <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-medium uppercase tracking-wider ${
-                viewMode === mode
-                  ? "bg-white text-charcoal shadow-sm font-semibold border border-slate-200/10"
-                  : "text-slate/60 hover:text-slate"
+              key={preset}
+              onClick={() => setSelectedPreset(preset)}
+              className={`px-3 py-1.5 rounded-full border transition-all cursor-pointer text-[10px] font-semibold uppercase tracking-wider ${
+                selectedPreset === preset
+                  ? "bg-sage text-white border-sage font-semibold shadow-sm"
+                  : "bg-white/70 text-slate border-slate-200/50 hover:bg-white"
               }`}
             >
-              {mode === "grid" && "🎛️ Grid"}
-              {mode === "board" && "📋 Kanban"}
-              {mode === "graph" && "🕸️ Graph"}
+              {preset === "all" && "All"}
+              {preset === "orphan" && "🕸️ Orphans"}
+              {preset === "hub" && "🐙 Hubs"}
+              {preset === "code" && "💻 Code"}
             </button>
           ))}
         </div>
+
+        {/* tags list bar */}
+        <TagFilter
+          tags={tags}
+          selectedTag={selectedTag}
+          onSelectTag={setSelectedTag}
+        />
+
+        {/* main layout renders */}
+        <main className="w-full max-w-7xl mx-auto px-6">
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <span className="text-slate text-sm font-sans flex items-center gap-2 animate-pulse">
+                <span className="w-2.5 h-2.5 rounded-full bg-sage"></span>
+                Tending garden...
+              </span>
+            </div>
+          ) : finalDisplayNotes.length === 0 ? (
+            <EmptyState onPlantNote={handlePlantNote} />
+          ) : viewMode === "board" ? (
+            <KanbanBoard
+              notes={finalDisplayNotes}
+              onMoveNote={handleMoveNote}
+              onEdit={handleEditNote}
+              onDelete={handleDeleteNote}
+              onToggleFavorite={handleToggleFavorite}
+              onSelectNote={handleSelectLinkedNote}
+            />
+          ) : viewMode === "graph" ? (
+            <ConnectionGraph
+              notes={finalDisplayNotes}
+              onSelectNote={handleSelectLinkedNote}
+            />
+          ) : (
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              <AnimatePresence mode="popLayout">
+                {finalDisplayNotes.map((note) => {
+                  const linkedNotes = note.linked_note_ids
+                    ? note.linked_note_ids
+                        .map((id) => {
+                          const match = notes.find((n) => n.id === id);
+                          return match ? { id: match.id, title: match.title, content: match.content } : null;
+                        })
+                        .filter((n): n is { id: string; title: string; content: string } => n !== null)
+                    : [];
+
+                  return (
+                    <motion.div
+                      key={note.id}
+                      layout
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <NoteCard
+                        note={note}
+                        linkedNotes={linkedNotes}
+                        onEdit={handleEditNote}
+                        onDelete={handleDeleteNote}
+                        onToggleFavorite={handleToggleFavorite}
+                        onSelectNote={handleSelectLinkedNote}
+                      />
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </main>
       </div>
 
-      {/* filter presets row */}
-      <div className="w-full max-w-7xl mx-auto px-4 mb-6 flex flex-wrap gap-2 text-xs font-sans">
-        <span className="text-slate/40 flex items-center font-medium mr-1 uppercase tracking-wider text-[10px]">Filter Presets:</span>
-        {(["all", "orphan", "hub", "code"] as const).map((preset) => (
-          <button
-            key={preset}
-            onClick={() => setSelectedPreset(preset)}
-            className={`px-3 py-1.5 rounded-xl border transition-all cursor-pointer text-[11px] ${
-              selectedPreset === preset
-                ? "bg-sage text-white border-sage font-medium shadow-sm"
-                : "bg-white/70 text-slate border-slate-200/50 hover:bg-white"
-            }`}
-          >
-            {preset === "all" && "✨ All Notes"}
-            {preset === "orphan" && "🕸️ Orphan Notes (0 links)"}
-            {preset === "hub" && "🐙 Hub Notes (>2 links)"}
-            {preset === "code" && "💻 Code Snippets"}
-          </button>
-        ))}
-      </div>
+      {/* footer floating glass banner */}
+      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 bg-white/70 backdrop-blur-md border border-slate-200/30 px-6 py-3 rounded-full shadow-lg font-serif italic text-xs text-sage-dark select-none text-center">
+        “A garden is never finished, it is always just beginning.”
+      </footer>
 
-      {/* tag strip */}
-      <TagFilter
-        tags={tags}
-        selectedTag={selectedTag}
-        onSelectTag={setSelectedTag}
-      />
-
-      {/* main content grid / board / graph */}
-      <main className="w-full max-w-7xl mx-auto px-4">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-20">
-            <span className="text-slate text-sm font-sans flex items-center gap-2 animate-pulse">
-              <span className="w-2.5 h-2.5 rounded-full bg-sage"></span>
-              Tending the garden...
-            </span>
-          </div>
-        ) : finalDisplayNotes.length === 0 ? (
-          <EmptyState onPlantNote={handlePlantNote} />
-        ) : viewMode === "board" ? (
-          <KanbanBoard
-            notes={finalDisplayNotes}
-            onMoveNote={handleMoveNote}
-            onEdit={handleEditNote}
-            onDelete={handleDeleteNote}
-            onToggleFavorite={handleToggleFavorite}
-            onSelectNote={handleSelectLinkedNote}
-          />
-        ) : viewMode === "graph" ? (
-          <ConnectionGraph
-            notes={finalDisplayNotes}
-            onSelectNote={handleSelectLinkedNote}
-          />
-        ) : (
-          <motion.div
-            layout
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            <AnimatePresence mode="popLayout">
-              {finalDisplayNotes.map((note) => {
-                // map linked note ids to titles
-                const linkedNotes = note.linked_note_ids
-                  ? note.linked_note_ids
-                      .map((id) => {
-                        const match = notes.find((n) => n.id === id);
-                        return match ? { id: match.id, title: match.title, content: match.content } : null;
-                      })
-                      .filter((n): n is { id: string; title: string; content: string } => n !== null)
-                  : [];
-
-                return (
-                  <motion.div
-                    key={note.id}
-                    layout
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <NoteCard
-                      note={note}
-                      linkedNotes={linkedNotes}
-                      onEdit={handleEditNote}
-                      onDelete={handleDeleteNote}
-                      onToggleFavorite={handleToggleFavorite}
-                      onSelectNote={handleSelectLinkedNote}
-                    />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </main>
-
-      {/* creation/editing panel */}
+      {/* drawer */}
       <Drawer
         isOpen={isDrawerOpen}
         note={activeNote}
@@ -320,6 +384,7 @@ export default function Home() {
         allNotes={allNotesCompact}
       />
 
+      {/* command palette */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
@@ -329,6 +394,7 @@ export default function Home() {
         onSwitchView={setViewMode}
       />
 
+      {/* interactive tour */}
       <OnboardingTour />
     </div>
   );
