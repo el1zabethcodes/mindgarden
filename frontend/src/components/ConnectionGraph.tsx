@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Note } from "../lib/types";
 
 interface ConnectionGraphProps {
@@ -84,7 +84,7 @@ export default function ConnectionGraph({ notes, onSelectNote }: ConnectionGraph
     });
 
     // run force simulation loop
-    let tempNodes = [...initialNodes];
+    const tempNodes = [...initialNodes];
     
     // simple force-directed simulation algorithm
     const ticks = 180;

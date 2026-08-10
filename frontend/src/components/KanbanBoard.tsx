@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { Note, NoteStatus } from "../lib/types";
 import NoteCard from "./NoteCard";
 

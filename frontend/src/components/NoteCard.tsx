@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Heart, Pencil, Trash2, Link2, Sprout, Leaf, TreeDeciduous } from "lucide-react";
+import { Heart, Pencil, Trash2, Link2 } from "lucide-react";
 import { Note, NoteStatus } from "../lib/types";
 import { formatRelativeTime } from "../lib/utils";
 
@@ -40,20 +40,20 @@ export default function NoteCard({
     switch (status) {
       case "seed":
         return (
-          <span className="flex items-center gap-1 px-2.5 py-1 bg-sage-light text-sage-dark text-[11px] font-semibold tracking-wider uppercase rounded-full border border-sage/15 font-sans">
-            <Sprout className="w-3 h-3" /> seed
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-sage-light/60 text-sage-dark text-[11px] font-semibold tracking-wider uppercase rounded-full border border-sage/10 font-sans">
+            <span>🌱</span> seed
           </span>
         );
       case "growing":
         return (
-          <span className="flex items-center gap-1 px-2.5 py-1 bg-mint-light text-mint-dark text-[11px] font-semibold tracking-wider uppercase rounded-full border border-mint/25 font-sans">
-            <Leaf className="w-3 h-3" /> growing
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-mint-light/70 text-mint-dark text-[11px] font-semibold tracking-wider uppercase rounded-full border border-mint/20 font-sans">
+            <span>🌿</span> growing
           </span>
         );
       case "evergreen":
         return (
-          <span className="flex items-center gap-1 px-2.5 py-1 bg-slate-light text-slate text-[11px] font-semibold tracking-wider uppercase rounded-full border border-slate/10 font-sans">
-            <TreeDeciduous className="w-3 h-3" /> evergreen
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-light/80 text-slate text-[11px] font-semibold tracking-wider uppercase rounded-full border border-slate/10 font-sans">
+            <span>🌳</span> evergreen
           </span>
         );
       default:
@@ -61,23 +61,23 @@ export default function NoteCard({
     }
   };
 
-  // map mood color to background gradient styles
+  // map mood color to background gradient and soft glow border/shadow styles
   const getMoodStyles = (color: string) => {
     switch (color) {
       case "sage":
-        return "from-white/80 to-sage-light/30 border-sage/15";
+        return "from-white/70 to-sage-light/20 border-sage/10 hover:border-sage/35 hover:shadow-[0_12px_36px_rgba(135,169,135,0.06)]";
       case "mint":
-        return "from-white/80 to-mint-light/45 border-mint/30";
+        return "from-white/70 to-mint-light/35 border-mint/20 hover:border-mint-dark/40 hover:shadow-[0_12px_36px_rgba(188,227,197,0.12)]";
       case "slate":
-        return "from-white/80 to-slate-light/45 border-slate/15";
+        return "from-white/70 to-slate-light/35 border-slate/10 hover:border-slate/30 hover:shadow-[0_12px_36px_rgba(100,116,139,0.05)]";
       case "lavender_cool":
-        return "from-white/80 to-purple-50/20 border-purple-100";
+        return "from-white/70 to-purple-50/15 border-purple-100 hover:border-purple-250 hover:shadow-[0_12px_36px_rgba(192,132,252,0.08)]";
       case "peach":
-        return "from-white/80 to-orange-50/25 border-orange-100";
+        return "from-white/70 to-orange-50/15 border-orange-100 hover:border-orange-250 hover:shadow-[0_12px_36px_rgba(251,146,60,0.08)]";
       case "rose":
-        return "from-white/80 to-pink-50/25 border-pink-100";
+        return "from-white/70 to-pink-50/15 border-pink-100 hover:border-pink-250 hover:shadow-[0_12px_36px_rgba(244,114,182,0.08)]";
       default:
-        return "from-white/80 to-white/70 border-slate-200/40";
+        return "from-white/70 to-white/60 border-slate-200/30 hover:shadow-[0_12px_36px_rgba(0,0,0,0.015)]";
     }
   };
 
