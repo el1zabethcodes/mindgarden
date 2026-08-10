@@ -13,6 +13,7 @@ import ActivityCalendar from "../components/ActivityCalendar";
 import KanbanBoard from "../components/KanbanBoard";
 import ConnectionGraph from "../components/ConnectionGraph";
 import CommandPalette from "../components/CommandPalette";
+import OnboardingTour from "../components/OnboardingTour";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -327,6 +328,8 @@ export default function Home() {
         onPlantNote={handlePlantNote}
         onSwitchView={setViewMode}
       />
+
+      <OnboardingTour />
     </div>
   );
 }
