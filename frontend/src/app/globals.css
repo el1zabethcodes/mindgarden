@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  /* color system */
+  --background: #f4f6f8;
+  --foreground: #1e293b;
+  
+  --sage-light: #edf3ed;
+  --sage: #87a987;
+  --sage-medium: #729772;
+  --sage-dark: #5a7d5a;
+  
+  --mint-light: #f2f8f4;
+  --mint: #d0e7d5;
+  --mint-medium: #bce3c5;
+  --mint-dark: #8fcfa0;
+
+  --slate-light: #f8fafc;
+  --slate: #64748b;
+  
+  --pearl: #f4f6f8;
+  --charcoal: #1e293b;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --font-serif: var(--font-serif), Georgia, serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  
+  --color-sage-light: var(--sage-light);
+  --color-sage: var(--sage);
+  --color-sage-medium: var(--sage-medium);
+  --color-sage-dark: var(--sage-dark);
+  
+  --color-mint-light: var(--mint-light);
+  --color-mint: var(--mint);
+  --color-mint-medium: var(--mint-medium);
+  --color-mint-dark: var(--mint-dark);
+
+  --color-slate-light: var(--slate-light);
+  --color-slate: var(--slate);
+  
+  --color-charcoal: var(--charcoal);
+  --color-pearl: var(--pearl);
+  
+  --shadow-garden: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: -10px 0 40px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.16);
+}
