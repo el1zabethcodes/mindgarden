@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../lib/api";
-import { Note, Tag, NoteCreate, NoteUpdate } from "../lib/types";
+import { Note, Tag, NoteCreate, NoteUpdate, NoteStatus } from "../lib/types";
 import Header from "../components/Header";
 import TagFilter from "../components/TagFilter";
 import NoteCard from "../components/NoteCard";
 import Drawer from "../components/Drawer";
 import EmptyState from "../components/EmptyState";
+import ActivityCalendar from "../components/ActivityCalendar";
+import KanbanBoard from "../components/KanbanBoard";
+import ConnectionGraph from "../components/ConnectionGraph";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -19,6 +22,9 @@ export default function Home() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  // view modes
+  const [viewMode, setViewMode] = useState<"grid" | "board" | "graph">("grid");
 
   // drawer state
   const [activeNote, setActiveNote] = useState<Note | null>(null);
@@ -93,6 +99,15 @@ export default function Home() {
     }
   };
 
+  const handleMoveNote = async (id: string, newStatus: NoteStatus) => {
+    try {
+      await api.updateNote(id, { status: newStatus });
+      await refreshData();
+    } catch (err) {
+      console.error("failed to update note status:", err);
+    }
+  };
+
   const handleSaveNote = async (data: NoteCreate | NoteUpdate) => {
     try {
       if (activeNote) {
@@ -142,6 +157,30 @@ export default function Home() {
         onPlantNote={handlePlantNote}
       />
 
+      {/* activity dashboard row */}
+      <div className="w-full max-w-7xl mx-auto px-4 mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6">
+        <ActivityCalendar notes={notes} />
+        
+        {/* view mode selector */}
+        <div className="bg-white/60 backdrop-blur-md border border-slate-200/40 p-1.5 rounded-2xl flex gap-1 shadow-garden self-end md:self-auto font-sans text-xs">
+          {(["grid", "board", "graph"] as const).map((mode) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className={`px-4 py-2 rounded-xl transition-all cursor-pointer font-medium uppercase tracking-wider ${
+                viewMode === mode
+                  ? "bg-white text-charcoal shadow-sm font-semibold border border-slate-200/10"
+                  : "text-slate/60 hover:text-slate"
+              }`}
+            >
+              {mode === "grid" && "🎛️ Grid"}
+              {mode === "board" && "📋 Kanban"}
+              {mode === "graph" && "🕸️ Graph"}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* tag strip */}
       <TagFilter
         tags={tags}
@@ -149,7 +188,7 @@ export default function Home() {
         onSelectTag={setSelectedTag}
       />
 
-      {/* main content grid */}
+      {/* main content grid / board / graph */}
       <main className="w-full max-w-7xl mx-auto px-4">
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
@@ -160,6 +199,20 @@ export default function Home() {
           </div>
         ) : notes.length === 0 ? (
           <EmptyState onPlantNote={handlePlantNote} />
+        ) : viewMode === "board" ? (
+          <KanbanBoard
+            notes={notes}
+            onMoveNote={handleMoveNote}
+            onEdit={handleEditNote}
+            onDelete={handleDeleteNote}
+            onToggleFavorite={handleToggleFavorite}
+            onSelectNote={handleSelectLinkedNote}
+          />
+        ) : viewMode === "graph" ? (
+          <ConnectionGraph
+            notes={notes}
+            onSelectNote={handleSelectLinkedNote}
+          />
         ) : (
           <motion.div
             layout
