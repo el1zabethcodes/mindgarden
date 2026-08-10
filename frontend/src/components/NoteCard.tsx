@@ -1,17 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Heart, Pencil, Trash2, Link2 } from "lucide-react";
 import { Note, NoteStatus } from "../lib/types";
 import { formatRelativeTime } from "../lib/utils";
 
 interface NoteCardProps {
   note: Note;
-  linkedNotes: Array<{ id: string; title: string }>;
+  linkedNotes: Array<{ id: string; title: string; content: string }>;
   onEdit: (note: Note) => void;
   onDelete: (id: string) => void;
   onToggleFavorite: (note: Note) => void;
   onSelectNote: (id: string) => void;
+}
+
+function ConnectionChip({
+  lnk,
+  onSelectNote,
+  getExcerpt,
+}: {
+  lnk: { id: string; title: string; content: string };
+  onSelectNote: (id: string) => void;
+  getExcerpt: (md: string) => string;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={() => onSelectNote(lnk.id)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="text-[10px] font-medium text-sage-dark bg-sage-light/50 border border-sage/10 px-2 py-0.5 rounded-full hover:bg-sage-light cursor-pointer transition-colors max-w-[120px] truncate font-sans"
+      >
+        {lnk.title}
+      </button>
+
+      {isHovered && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white/95 backdrop-blur-md p-3 border border-slate-200/50 shadow-xl rounded-xl z-30 text-left pointer-events-none transition-all duration-200">
+          <h4 className="font-serif text-[11px] font-bold text-charcoal mb-1">{lnk.title}</h4>
+          <p className="text-[9px] text-slate/85 font-sans leading-relaxed line-clamp-4">
+            {getExcerpt(lnk.content) || <span className="italic text-slate/40">empty content...</span>}
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function NoteCard({
@@ -144,13 +177,12 @@ export default function NoteCard({
             </div>
             <div className="flex flex-wrap gap-1">
               {linkedNotes.map((lnk) => (
-                <button
+                <ConnectionChip
                   key={lnk.id}
-                  onClick={() => onSelectNote(lnk.id)}
-                  className="text-[10px] font-medium text-sage-dark bg-sage-light/50 border border-sage/10 px-2 py-0.5 rounded-full hover:bg-sage-light cursor-pointer transition-colors max-w-[120px] truncate font-sans"
-                >
-                  {lnk.title}
-                </button>
+                  lnk={lnk}
+                  onSelectNote={onSelectNote}
+                  getExcerpt={getExcerpt}
+                />
               ))}
             </div>
           </div>
