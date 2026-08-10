@@ -49,18 +49,39 @@
   --shadow-drawer: -10px 0 40px rgba(0, 0, 0, 0.08);
 }
 
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 body {
-  background-color: var(--background);
+  background: linear-gradient(-45deg, #f4f6f8, #e2ebe2, #d8ebd9, #e9ecef);
+  background-size: 400% 400%;
+  animation: gradient-flow 18s ease infinite;
   color: var(--foreground);
   font-family: var(--font-sans);
   overflow-x: hidden;
-  /* technical engineering grid pattern with low opacity */
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   background-image: 
-    linear-gradient(rgba(135, 169, 135, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(135, 169, 135, 0.025) 1px, transparent 1px),
-    radial-gradient(rgba(135, 169, 135, 0.09) 1.5px, transparent 0);
+    linear-gradient(rgba(135, 169, 135, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(135, 169, 135, 0.02) 1px, transparent 1px),
+    radial-gradient(rgba(135, 169, 135, 0.07) 1.5px, transparent 0);
   background-size: 64px 64px, 64px 64px, 16px 16px;
-  background-attachment: fixed;
+  pointer-events: none;
 }
 
 /* custom scrollbar */
