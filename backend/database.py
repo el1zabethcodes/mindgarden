@@ -1,8 +1,11 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# db path
-db_url = "sqlite:///./garden.db"
+# resolve db path relative to this file
+base_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(base_dir, "garden.db")
+db_url = f"sqlite:///{db_path}"
 
 # connect_args needed for sqlite thread safety
 engine = create_engine(
