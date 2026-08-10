@@ -26,7 +26,7 @@ export function parseMarkdown(md: string): string {
   // temporary placeholder for code blocks to prevent double parsing
   const codeBlocks: string[] = [];
   let html = md.replace(/```([\s\S]*?)```/g, (match, code) => {
-    const id = `__CODE_BLOCK_${codeBlocks.length}__`;
+    const id = `@@@CODEBLOCK_${codeBlocks.length}@@@`;
     const trimmed = code.trim();
     if (trimmed.startsWith("mermaid")) {
       const syntax = trimmed.substring(7).trim();
@@ -35,7 +35,7 @@ export function parseMarkdown(md: string): string {
       );
     } else {
       codeBlocks.push(
-        `<pre class="bg-slate-100/60 border border-slate-200/50 p-4 rounded-xl text-xs font-mono my-4 overflow-x-auto text-charcoal">${trimmed}</pre>`
+        `<pre class="bg-slate-100/60 border border-slate-200/50 p-4 rounded-xl text-xs font-mono my-4 overflow-x-auto text-charcoal">${trimmed || " "}</pre>`
       );
     }
     return id;
@@ -70,7 +70,7 @@ export function parseMarkdown(md: string): string {
 
   // replace code blocks placeholders back
   codeBlocks.forEach((block, idx) => {
-    html = html.replace(`__CODE_BLOCK_${idx}__`, block);
+    html = html.replace(`@@@CODEBLOCK_${idx}@@@`, block);
   });
 
   // split into paragraphs or convert newlines
