@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "react-future"; // wait, standard framer-motion is fine
 import { Search, Sparkles, Terminal, FileText, Layout, Network, PlusCircle } from "lucide-react";
 import { Note } from "../lib/types";
 

@@ -82,14 +82,13 @@ export default function KanbanBoard({
             {/* notes list */}
             <div className="flex flex-col gap-4 flex-1">
               {colNotes.map((note) => {
-                // map linked note ids to titles for chips
                 const linkedNotes = note.linked_note_ids
                   ? note.linked_note_ids
                       .map((id) => {
                         const match = notes.find((n) => n.id === id);
-                        return match ? { id: match.id, title: match.title } : null;
+                        return match ? { id: match.id, title: match.title, content: match.content } : null;
                       })
-                      .filter((n): n is { id: string; title: string } => n !== null)
+                      .filter((n): n is { id: string; title: string; content: string } => n !== null)
                   : [];
 
                 return (
