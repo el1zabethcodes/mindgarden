@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { Sprout, Link2, Map, Tag, Archive, Settings, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface SidebarProps {
   currentNav: string;
@@ -27,7 +26,7 @@ export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 
           Mindgarden
         </h1>
         <span className="text-[10px] uppercase font-bold tracking-widest text-slate/40 block mt-0.5">
-          Elizaveta's Space
+          Elizaveta&apos;s Space
         </span>
       </div>
 
@@ -89,7 +88,7 @@ export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 
         {/* quote card */}
         <div className="bg-sage-light/45 border border-sage/10 p-3.5 rounded-2xl shadow-sm">
           <p className="font-serif italic text-xs text-sage-dark/95 leading-relaxed">
-            "Small seeds, great forests"
+            &ldquo;Small seeds, great forests&rdquo;
           </p>
         </div>
 

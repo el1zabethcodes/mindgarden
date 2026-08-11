@@ -109,6 +109,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
       const escapedTitle = n.title.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
       const regex = new RegExp(`\\b${escapedTitle}\\b`, "i");
       return regex.test(content);
+    });
   }, [content, allNotes, note, linkedIds]);
 
   // generate table of contents headings

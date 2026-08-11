@@ -11,6 +11,9 @@ backend/.venv/
 backend/venv/
 backend/garden.db
 
+# local tooling state
+.mimosa/
+
 # environment variables
 .env
 .env.local
