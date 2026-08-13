@@ -4,6 +4,17 @@ from sqlalchemy import Table, Column, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    username = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    display_name = Column(String, default="")
+    # bcrypt digest, never the raw password
+    password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 # association table for notes and tags
 note_tags = Table(
     "note_tags",
