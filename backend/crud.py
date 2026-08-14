@@ -4,6 +4,25 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 import models
 import schemas
+import security
+
+def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
+    return db.query(models.User).filter(models.User.username == username).first()
+
+def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
+    return db.query(models.User).filter(models.User.email == email).first()
+
+def create_user(db: Session, user_in: schemas.UserCreate) -> models.User:
+    db_user = models.User(
+        username=user_in.username,
+        email=user_in.email,
+        display_name=user_in.display_name or user_in.username,
+        password_hash=security.hash_password(user_in.password),
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
 # helper to slugify tag names
 def slugify(text: str) -> str:

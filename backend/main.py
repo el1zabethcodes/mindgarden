@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 import crud
+from auth import router as auth_router
 from database import engine, Base, get_db
 
 # skip alembic, create tables on startup
@@ -30,6 +31,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
 
 def make_note_response(db: Session, db_note: models.Note) -> schemas.NoteOut:
     linked_ids = crud.get_linked_note_ids(db, db_note.id)

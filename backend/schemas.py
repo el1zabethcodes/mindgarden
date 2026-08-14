@@ -1,6 +1,54 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, field_validator
+import re
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+    display_name: Optional[str] = ""
+
+    @field_validator("username")
+    @classmethod
+    def clean_username(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[a-z0-9_-]{3,24}$", v):
+            raise ValueError("username must be 3-24 characters: letters, digits, _ or -")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def clean_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", v):
+            raise ValueError("email format is not valid")
+        return v
+
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("password must be at least 8 characters")
+        return v
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class UserOut(BaseModel):
+    id: str
+    username: str
+    email: str
+    display_name: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 
 class TagBase(BaseModel):
     id: str
