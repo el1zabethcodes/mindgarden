@@ -1,4 +1,6 @@
+import os
 import re
+import secrets
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -11,6 +13,26 @@ def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
 
 def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
     return db.query(models.User).filter(models.User.email == email).first()
+
+DEMO_USERNAME = "gardener"
+
+def get_or_create_demo_user(db: Session) -> models.User:
+    demo = get_user_by_username(db, DEMO_USERNAME)
+    if not demo:
+        # the demo password comes from the DEMO_PASSWORD env var; when unset
+        # a random one is generated so nobody can log in by guessing
+        demo_password = os.environ.get("DEMO_PASSWORD") or secrets.token_urlsafe(16)
+        demo = models.User(
+            username=DEMO_USERNAME,
+            email="gardener@mindgarden.local",
+            display_name="Demo Gardener",
+            password_hash=security.hash_password(demo_password),
+        )
+        db.add(demo)
+        db.commit()
+        db.refresh(demo)
+    return demo
+
 
 def create_user(db: Session, user_in: schemas.UserCreate) -> models.User:
     db_user = models.User(
@@ -97,9 +119,12 @@ def set_note_links(db: Session, note_id: str, linked_ids: List[str]):
             added.add(pair)
     db.commit()
 
-def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None):
+def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None):
     query = db.query(models.Note)
-    
+
+    if user_id:
+        query = query.filter(models.Note.user_id == user_id)
+
     if status:
         query = query.filter(models.Note.status == status)
         
@@ -122,14 +147,15 @@ def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] =
 def get_note(db: Session, note_id: str):
     return db.query(models.Note).filter(models.Note.id == note_id).first()
 
-def create_note(db: Session, note_in: schemas.NoteCreate) -> models.Note:
+def create_note(db: Session, note_in: schemas.NoteCreate, owner: Optional[models.User] = None) -> models.Note:
     # create db note
     db_note = models.Note(
         title=note_in.title,
         content=note_in.content,
         status=note_in.status,
         mood_color=note_in.mood_color,
-        is_favorite=note_in.is_favorite
+        is_favorite=note_in.is_favorite,
+        user_id=owner.id if owner else None
     )
     
     # handle tags

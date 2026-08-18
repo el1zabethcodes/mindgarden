@@ -16,6 +16,9 @@ def seed_db():
         db.query(models.Note).delete()
         db.query(models.Tag).delete()
         db.commit()
+
+        # everything planted by the seed belongs to the demo gardener
+        demo = crud.get_or_create_demo_user(db)
         
         print("seeding tags...")
         tags = [
@@ -278,7 +281,11 @@ CMD ["npm", "start"]
         crud.set_note_links(db, n7.id, [n5.id])
         
         # Note: n8 (SQL Indexes), n9 (Tailwind), n10 (Docker) remain orphans (0 connections) to test the orphan filter!
-        
+
+        print("assigning seeded notes to the demo gardener...")
+        db.query(models.Note).update({models.Note.user_id: demo.id})
+        db.commit()
+
         print("database seeded successfully!")
         
     finally:

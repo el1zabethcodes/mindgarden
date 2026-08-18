@@ -7,14 +7,16 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 import crud
-from auth import router as auth_router
+from auth import router as auth_router, get_optional_user
 from database import engine, Base, get_db
+from migrations import apply_lightweight_migrations
 
 # skip alembic, create tables on startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # create all database tables
+    # create all database tables, then patch columns on older database files
     Base.metadata.create_all(bind=engine)
+    apply_lightweight_migrations(engine)
     yield
 
 app = FastAPI(
@@ -54,9 +56,17 @@ def read_notes(
     search: Optional[str] = Query(None, description="search in title or content"),
     status: Optional[str] = Query(None, description="filter by status seed/growing/evergreen"),
     tag: Optional[str] = Query(None, description="filter by tag name"),
+    current_user: Optional[models.User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
-    notes = crud.get_notes(db, search=search, status=status, tag=tag)
+    # token bearers only see their own garden; anonymous visitors keep the shared one
+    notes = crud.get_notes(
+        db,
+        search=search,
+        status=status,
+        tag=tag,
+        user_id=current_user.id if current_user else None,
+    )
     return [make_note_response(db, n) for n in notes]
 
 @app.get("/api/notes/{note_id}", response_model=schemas.NoteOut)
@@ -70,8 +80,12 @@ def read_note(note_id: str, db: Session = Depends(get_db)):
     return make_note_response(db, db_note)
 
 @app.post("/api/notes", response_model=schemas.NoteOut, status_code=status.HTTP_201_CREATED)
-def create_note(note: schemas.NoteCreate, db: Session = Depends(get_db)):
-    db_note = crud.create_note(db, note)
+def create_note(
+    note: schemas.NoteCreate,
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    db_note = crud.create_note(db, note, owner=current_user)
     return make_note_response(db, db_note)
 
 @app.put("/api/notes/{note_id}", response_model=schemas.NoteOut)

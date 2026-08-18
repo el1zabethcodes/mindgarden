@@ -15,6 +15,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    notes = relationship("Note", back_populates="owner")
+
 # association table for notes and tags
 note_tags = Table(
     "note_tags",
@@ -40,11 +42,14 @@ class Note(Base):
     status = Column(String, default="seed")  # "seed" | "growing" | "evergreen"
     mood_color = Column(String, default="slate")
     is_favorite = Column(Boolean, default=False)
+    # nullable until every note belongs to a registered gardener
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # relationships
     tags = relationship("Tag", secondary=note_tags, back_populates="notes")
+    owner = relationship("User", back_populates="notes")
     
     # bidirectional note links
     # we represent links as entries in note_links.
