@@ -44,6 +44,7 @@ def make_note_response(db: Session, db_note: models.Note) -> schemas.NoteOut:
         content=db_note.content,
         status=db_note.status,
         mood_color=db_note.mood_color,
+        mood_score=db_note.mood_score,
         is_favorite=db_note.is_favorite,
         created_at=db_note.created_at,
         updated_at=db_note.updated_at,

@@ -73,6 +73,14 @@ class NoteBase(BaseModel):
     content: Optional[str] = ""
     status: Optional[str] = "seed"  # "seed" | "growing" | "evergreen"
     mood_color: Optional[str] = "slate"
+    mood_score: Optional[int] = None  # 1 (wilting) to 10 (blooming)
+
+    @field_validator("mood_score")
+    @classmethod
+    def check_mood_score(cls, v: Optional[int]) -> Optional[int]:
+        if v is not None and not 1 <= v <= 10:
+            raise ValueError("mood_score must be between 1 and 10")
+        return v
     is_favorite: Optional[bool] = False
 
 class NoteCreate(NoteBase):
@@ -84,9 +92,17 @@ class NoteUpdate(BaseModel):
     content: Optional[str] = None
     status: Optional[str] = None
     mood_color: Optional[str] = None
+    mood_score: Optional[int] = None
     is_favorite: Optional[bool] = None
     tags: Optional[List[str]] = None
     linked_note_ids: Optional[List[str]] = None
+
+    @field_validator("mood_score")
+    @classmethod
+    def check_mood_score(cls, v: Optional[int]) -> Optional[int]:
+        if v is not None and not 1 <= v <= 10:
+            raise ValueError("mood_score must be between 1 and 10")
+        return v
 
 class NoteOut(NoteBase):
     id: str

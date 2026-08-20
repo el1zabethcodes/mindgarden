@@ -1,6 +1,6 @@
 from datetime import datetime
 import uuid
-from sqlalchemy import Table, Column, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Table, Column, String, Boolean, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -41,6 +41,8 @@ class Note(Base):
     content = Column(String, default="")
     status = Column(String, default="seed")  # "seed" | "growing" | "evergreen"
     mood_color = Column(String, default="slate")
+    # how the gardener felt while tending this note, 1 (wilting) to 10 (blooming)
+    mood_score = Column(Integer, nullable=True)
     is_favorite = Column(Boolean, default=False)
     # nullable until every note belongs to a registered gardener
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)

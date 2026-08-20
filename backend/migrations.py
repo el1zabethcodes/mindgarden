@@ -22,3 +22,7 @@ def apply_lightweight_migrations(target_engine=None) -> None:
             conn.execute(text(
                 "ALTER TABLE notes ADD COLUMN user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE"
             ))
+        if "mood_score" not in columns:
+            conn.execute(text(
+                "ALTER TABLE notes ADD COLUMN mood_score INTEGER"
+            ))
