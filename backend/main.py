@@ -113,3 +113,21 @@ def delete_note(note_id: str, db: Session = Depends(get_db)):
 def read_tags(db: Session = Depends(get_db)):
     tags = crud.get_tags(db)
     return [schemas.TagBase.model_validate(t) for t in tags]
+
+@app.post("/api/mood", response_model=schemas.MoodEntryOut, status_code=status.HTTP_201_CREATED)
+def log_mood(
+    entry_in: schemas.MoodEntryIn,
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    gardener = current_user or crud.get_or_create_demo_user(db)
+    return crud.upsert_mood_entry(db, gardener, entry_in)
+
+@app.get("/api/mood", response_model=List[schemas.MoodEntryOut])
+def read_mood(
+    days: int = Query(30, ge=1, le=365, description="how many days back to fetch"),
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    gardener = current_user or crud.get_or_create_demo_user(db)
+    return crud.get_mood_entries(db, gardener.id, days=days)

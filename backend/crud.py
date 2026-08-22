@@ -1,6 +1,7 @@
 import os
 import re
 import secrets
+from datetime import date, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -222,3 +223,36 @@ def delete_note(db: Session, note_id: str) -> bool:
 
 def get_tags(db: Session):
     return db.query(models.Tag).all()
+
+def upsert_mood_entry(db: Session, user: models.User, entry_in: schemas.MoodEntryIn) -> models.MoodEntry:
+    # one entry per gardener per day: same-day updates overwrite in place
+    entry_date = entry_in.entry_date or date.today()
+    entry = db.query(models.MoodEntry).filter(
+        models.MoodEntry.user_id == user.id,
+        models.MoodEntry.entry_date == entry_date,
+    ).first()
+
+    if entry:
+        entry.score = entry_in.score
+        entry.note = entry_in.note or ""
+    else:
+        entry = models.MoodEntry(
+            user_id=user.id,
+            score=entry_in.score,
+            note=entry_in.note or "",
+            entry_date=entry_date,
+        )
+        db.add(entry)
+
+    db.commit()
+    db.refresh(entry)
+    return entry
+
+def get_mood_entries(db: Session, user_id: str, days: int = 30) -> List[models.MoodEntry]:
+    since = date.today() - timedelta(days=days)
+    return (
+        db.query(models.MoodEntry)
+        .filter(models.MoodEntry.user_id == user_id, models.MoodEntry.entry_date >= since)
+        .order_by(models.MoodEntry.entry_date.desc())
+        .all()
+    )

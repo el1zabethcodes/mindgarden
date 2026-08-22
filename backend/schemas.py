@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 from pydantic import BaseModel, field_validator
 import re
@@ -49,6 +49,30 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+class MoodEntryIn(BaseModel):
+    score: int
+    note: Optional[str] = ""
+    # calendar day of the entry; defaults to today when omitted
+    entry_date: Optional[date] = None
+
+    @field_validator("score")
+    @classmethod
+    def check_score(cls, v: int) -> int:
+        if not 1 <= v <= 10:
+            raise ValueError("mood score must be between 1 and 10")
+        return v
+
+class MoodEntryOut(BaseModel):
+    id: str
+    user_id: str
+    score: int
+    note: str
+    entry_date: date
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 class TagBase(BaseModel):
     id: str
