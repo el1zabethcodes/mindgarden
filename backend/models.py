@@ -33,6 +33,41 @@ class MoodEntry(Base):
         UniqueConstraint("user_id", "entry_date", name="uq_mood_user_day"),
     )
 
+class Habit(Base):
+    __tablename__ = "habits"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, default="")
+    # gentle botanical icon key rendered by the frontend (seedling, leaf, sun...)
+    icon = Column(String, default="seedling")
+    # paused habits retire to the shade instead of being deleted
+    is_archived = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    logs = relationship(
+        "HabitLog",
+        back_populates="habit",
+        cascade="all, delete-orphan",
+        order_by="HabitLog.log_date.desc()",
+    )
+
+class HabitLog(Base):
+    __tablename__ = "habit_logs"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    habit_id = Column(String, ForeignKey("habits.id", ondelete="CASCADE"), nullable=False, index=True)
+    log_date = Column(Date, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    habit = relationship("Habit", back_populates="logs")
+
+    __table_args__ = (
+        # one check-in per habit per day
+        UniqueConstraint("habit_id", "log_date", name="uq_habit_day"),
+    )
+
 # association table for notes and tags
 note_tags = Table(
     "note_tags",

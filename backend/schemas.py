@@ -74,6 +74,42 @@ class MoodEntryOut(BaseModel):
     class Config:
         from_attributes = True
 
+class HabitCreate(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    icon: Optional[str] = "seedling"
+
+    @field_validator("name")
+    @classmethod
+    def clean_name(cls, v: str) -> str:
+        v = v.strip()
+        if not 1 <= len(v) <= 60:
+            raise ValueError("habit name must be 1-60 characters")
+        return v
+
+class HabitUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    icon: Optional[str] = None
+    is_archived: Optional[bool] = None
+
+class HabitOut(BaseModel):
+    id: str
+    name: str
+    description: str
+    icon: str
+    is_archived: bool
+    created_at: datetime
+    # computed at read time from the log dates
+    current_streak: int
+    total_checkins: int
+    recent_days: List[bool]  # check-ins for the last 30 days, oldest first
+
+class HabitCheckinOut(BaseModel):
+    habit_id: str
+    log_date: date
+    current_streak: int
+
 class TagBase(BaseModel):
     id: str
     name: str
