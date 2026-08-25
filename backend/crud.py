@@ -256,3 +256,83 @@ def get_mood_entries(db: Session, user_id: str, days: int = 30) -> List[models.M
         .order_by(models.MoodEntry.entry_date.desc())
         .all()
     )
+
+def get_habits(db: Session, user_id: str, include_archived: bool = False) -> List[models.Habit]:
+    query = db.query(models.Habit).filter(models.Habit.user_id == user_id)
+    if not include_archived:
+        query = query.filter(models.Habit.is_archived == False)
+    return query.order_by(models.Habit.created_at.asc()).all()
+
+def get_habit(db: Session, habit_id: str) -> Optional[models.Habit]:
+    return db.query(models.Habit).filter(models.Habit.id == habit_id).first()
+
+def create_habit(db: Session, user: models.User, habit_in: schemas.HabitCreate) -> models.Habit:
+    habit = models.Habit(
+        user_id=user.id,
+        name=habit_in.name,
+        description=habit_in.description or "",
+        icon=habit_in.icon or "seedling",
+    )
+    db.add(habit)
+    db.commit()
+    db.refresh(habit)
+    return habit
+
+def update_habit(db: Session, habit_id: str, habit_in: schemas.HabitUpdate) -> Optional[models.Habit]:
+    habit = get_habit(db, habit_id)
+    if not habit:
+        return None
+    for key, val in habit_in.model_dump(exclude_unset=True).items():
+        setattr(habit, key, val)
+    db.commit()
+    db.refresh(habit)
+    return habit
+
+def delete_habit(db: Session, habit_id: str) -> bool:
+    habit = get_habit(db, habit_id)
+    if not habit:
+        return False
+    db.delete(habit)  # logs cascade
+    db.commit()
+    return True
+
+def check_in_habit(db: Session, habit: models.Habit, log_date: Optional[date] = None) -> models.HabitLog:
+    # checking in twice on the same day is a no-op thanks to the unique pair
+    log_date = log_date or date.today()
+    log = db.query(models.HabitLog).filter(
+        models.HabitLog.habit_id == habit.id,
+        models.HabitLog.log_date == log_date,
+    ).first()
+    if not log:
+        log = models.HabitLog(habit_id=habit.id, log_date=log_date)
+        db.add(log)
+        db.commit()
+        db.refresh(log)
+    return log
+
+def calculate_streak(log_dates: set) -> int:
+    """count consecutive check-in days ending today (or yesterday, so a
+    streak survives until the gardener checks in again)."""
+    today = date.today()
+    cursor = today if today in log_dates else today - timedelta(days=1)
+    streak = 0
+    while cursor in log_dates:
+        streak += 1
+        cursor -= timedelta(days=1)
+    return streak
+
+def build_habit_out(db: Session, habit: models.Habit) -> schemas.HabitOut:
+    log_dates = {log.log_date for log in habit.logs}
+    today = date.today()
+    window = [today - timedelta(days=offset) for offset in range(29, -1, -1)]
+    return schemas.HabitOut(
+        id=habit.id,
+        name=habit.name,
+        description=habit.description,
+        icon=habit.icon,
+        is_archived=habit.is_archived,
+        created_at=habit.created_at,
+        current_streak=calculate_streak(log_dates),
+        total_checkins=len(log_dates),
+        recent_days=[d in log_dates for d in window],
+    )

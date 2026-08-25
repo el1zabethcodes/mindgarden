@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import date
 from typing import List, Optional
 from fastapi import FastAPI, Depends, HTTPException, Query, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -131,3 +132,66 @@ def read_mood(
 ):
     gardener = current_user or crud.get_or_create_demo_user(db)
     return crud.get_mood_entries(db, gardener.id, days=days)
+
+@app.get("/api/habits", response_model=List[schemas.HabitOut])
+def read_habits(
+    include_archived: bool = Query(False, description="also show paused habits"),
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    gardener = current_user or crud.get_or_create_demo_user(db)
+    habits = crud.get_habits(db, gardener.id, include_archived=include_archived)
+    return [crud.build_habit_out(db, h) for h in habits]
+
+@app.post("/api/habits", response_model=schemas.HabitOut, status_code=status.HTTP_201_CREATED)
+def create_habit(
+    habit_in: schemas.HabitCreate,
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    gardener = current_user or crud.get_or_create_demo_user(db)
+    habit = crud.create_habit(db, gardener, habit_in)
+    return crud.build_habit_out(db, habit)
+
+@app.put("/api/habits/{habit_id}", response_model=schemas.HabitOut)
+def update_habit(
+    habit_id: str,
+    habit_in: schemas.HabitUpdate,
+    db: Session = Depends(get_db)
+):
+    habit = crud.update_habit(db, habit_id, habit_in)
+    if not habit:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+    return crud.build_habit_out(db, habit)
+
+@app.delete("/api/habits/{habit_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_habit(habit_id: str, db: Session = Depends(get_db)):
+    success = crud.delete_habit(db, habit_id)
+    if not success:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+    return None
+
+@app.post("/api/habits/{habit_id}/check-in", response_model=schemas.HabitCheckinOut)
+def check_in_habit(
+    habit_id: str,
+    day: Optional[str] = Query(None, description="YYYY-MM-DD, defaults to today"),
+    db: Session = Depends(get_db)
+):
+    habit = crud.get_habit(db, habit_id)
+    if not habit:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Habit not found")
+
+    log_date = None
+    if day:
+        try:
+            log_date = date.fromisoformat(day)
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="day must be YYYY-MM-DD")
+
+    log = crud.check_in_habit(db, habit, log_date)
+    log_dates = {entry.log_date for entry in habit.logs}
+    return schemas.HabitCheckinOut(
+        habit_id=habit.id,
+        log_date=log.log_date,
+        current_streak=crud.calculate_streak(log_dates),
+    )
