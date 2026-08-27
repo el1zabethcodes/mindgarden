@@ -173,3 +173,11 @@ class NoteOut(NoteBase):
 
     class Config:
         from_attributes = True
+
+class NotesPage(BaseModel):
+    """paginated feed envelope"""
+    items: List[NoteOut]
+    total: int
+    limit: int
+    offset: int
+    has_more: bool

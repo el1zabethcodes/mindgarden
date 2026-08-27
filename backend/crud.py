@@ -120,19 +120,18 @@ def set_note_links(db: Session, note_id: str, linked_ids: List[str]):
             added.add(pair)
     db.commit()
 
-def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None):
-    query = db.query(models.Note)
-
+def _apply_note_filters(query, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None):
+    # shared filter chain for list and count queries so they never drift apart
     if user_id:
         query = query.filter(models.Note.user_id == user_id)
 
     if status:
         query = query.filter(models.Note.status == status)
-        
+
     if tag:
         tag_id = slugify(tag)
         query = query.filter(models.Note.tags.any(models.Tag.id == tag_id))
-        
+
     if search:
         search_filter = f"%{search}%"
         query = query.filter(
@@ -141,9 +140,26 @@ def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] =
                 models.Note.content.like(search_filter)
             )
         )
-        
+    return query
+
+def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, limit: Optional[int] = None, offset: int = 0):
+    query = db.query(models.Note)
+    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id)
+
     # sort by last tended/updated_at descending
-    return query.order_by(models.Note.updated_at.desc()).all()
+    query = query.order_by(models.Note.updated_at.desc())
+
+    if offset:
+        query = query.offset(offset)
+    if limit is not None:
+        query = query.limit(limit)
+
+    return query.all()
+
+def count_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None) -> int:
+    query = db.query(models.Note.id)
+    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id)
+    return query.count()
 
 def get_note(db: Session, note_id: str):
     return db.query(models.Note).filter(models.Note.id == note_id).first()
