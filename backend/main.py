@@ -78,13 +78,16 @@ def read_feed(
     search: Optional[str] = Query(None, description="search in title or content"),
     status: Optional[str] = Query(None, description="filter by status seed/growing/evergreen"),
     tag: Optional[str] = Query(None, description="filter by tag name"),
+    sort: str = Query("updated", pattern="^(updated|created|title|mood)$", description="feed ordering"),
+    date_from: Optional[date] = Query(None, description="only notes planted on/after this day"),
+    date_to: Optional[date] = Query(None, description="only notes planted on/before this day"),
     current_user: Optional[models.User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ):
     # paginated garden feed; /api/notes stays as the unpaginated legacy list
     user_id = current_user.id if current_user else None
-    total = crud.count_notes(db, search=search, status=status, tag=tag, user_id=user_id)
-    notes = crud.get_notes(db, search=search, status=status, tag=tag, user_id=user_id, limit=limit, offset=offset)
+    total = crud.count_notes(db, search=search, status=status, tag=tag, user_id=user_id, date_from=date_from, date_to=date_to)
+    notes = crud.get_notes(db, search=search, status=status, tag=tag, user_id=user_id, limit=limit, offset=offset, sort=sort, date_from=date_from, date_to=date_to)
     return schemas.NotesPage(
         items=[make_note_response(db, n) for n in notes],
         total=total,

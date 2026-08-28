@@ -1,7 +1,7 @@
 import os
 import re
 import secrets
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -120,7 +120,7 @@ def set_note_links(db: Session, note_id: str, linked_ids: List[str]):
             added.add(pair)
     db.commit()
 
-def _apply_note_filters(query, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None):
+def _apply_note_filters(query, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, date_from: Optional[date] = None, date_to: Optional[date] = None):
     # shared filter chain for list and count queries so they never drift apart
     if user_id:
         query = query.filter(models.Note.user_id == user_id)
@@ -140,14 +140,28 @@ def _apply_note_filters(query, search: Optional[str] = None, status: Optional[st
                 models.Note.content.like(search_filter)
             )
         )
+
+    if date_from:
+        query = query.filter(models.Note.created_at >= datetime.combine(date_from, time.min))
+    if date_to:
+        query = query.filter(models.Note.created_at <= datetime.combine(date_to, time.max))
+
     return query
 
-def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, limit: Optional[int] = None, offset: int = 0):
-    query = db.query(models.Note)
-    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id)
+NOTE_SORTS = {
+    "updated": models.Note.updated_at.desc(),
+    "created": models.Note.created_at.desc(),
+    "title": models.Note.title.asc(),
+    # brightest mood first, unmooded notes sink to the bottom
+    "mood": models.Note.mood_score.desc().nullslast(),
+}
 
-    # sort by last tended/updated_at descending
-    query = query.order_by(models.Note.updated_at.desc())
+def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, limit: Optional[int] = None, offset: int = 0, sort: str = "updated", date_from: Optional[date] = None, date_to: Optional[date] = None):
+    query = db.query(models.Note)
+    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id, date_from=date_from, date_to=date_to)
+
+    # unknown sort keys fall back to last-tended order
+    query = query.order_by(NOTE_SORTS.get(sort, NOTE_SORTS["updated"]))
 
     if offset:
         query = query.offset(offset)
@@ -156,9 +170,9 @@ def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] =
 
     return query.all()
 
-def count_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None) -> int:
+def count_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, date_from: Optional[date] = None, date_to: Optional[date] = None) -> int:
     query = db.query(models.Note.id)
-    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id)
+    query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id, date_from=date_from, date_to=date_to)
     return query.count()
 
 def get_note(db: Session, note_id: str):
