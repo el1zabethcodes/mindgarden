@@ -53,6 +53,26 @@ def make_note_response(db: Session, db_note: models.Note) -> schemas.NoteOut:
         linked_note_ids=linked_ids
     )
 
+def make_notes_response(db: Session, db_notes: List[models.Note]) -> List[schemas.NoteOut]:
+    # all links for the page resolved with a single query
+    links_map = crud.get_linked_note_ids_map(db, [n.id for n in db_notes])
+    return [
+        schemas.NoteOut(
+            id=n.id,
+            title=n.title,
+            content=n.content,
+            status=n.status,
+            mood_color=n.mood_color,
+            mood_score=n.mood_score,
+            is_favorite=n.is_favorite,
+            created_at=n.created_at,
+            updated_at=n.updated_at,
+            tags=[schemas.TagBase.model_validate(t) for t in n.tags],
+            linked_note_ids=links_map.get(n.id, []),
+        )
+        for n in db_notes
+    ]
+
 @app.get("/api/notes", response_model=List[schemas.NoteOut])
 def read_notes(
     search: Optional[str] = Query(None, description="search in title or content"),
@@ -69,7 +89,7 @@ def read_notes(
         tag=tag,
         user_id=current_user.id if current_user else None,
     )
-    return [make_note_response(db, n) for n in notes]
+    return make_notes_response(db, notes)
 
 @app.get("/api/feed", response_model=schemas.NotesPage)
 def read_feed(
@@ -89,7 +109,7 @@ def read_feed(
     total = crud.count_notes(db, search=search, status=status, tag=tag, user_id=user_id, date_from=date_from, date_to=date_to)
     notes = crud.get_notes(db, search=search, status=status, tag=tag, user_id=user_id, limit=limit, offset=offset, sort=sort, date_from=date_from, date_to=date_to)
     return schemas.NotesPage(
-        items=[make_note_response(db, n) for n in notes],
+        items=make_notes_response(db, notes),
         total=total,
         limit=limit,
         offset=offset,

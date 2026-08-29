@@ -3,7 +3,7 @@ import re
 import secrets
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import or_
 import models
 import schemas
@@ -93,6 +93,29 @@ def get_linked_note_ids(db: Session, note_id: str) -> List[str]:
             linked_ids.append(r.source_id)
     return list(set(linked_ids))
 
+def get_linked_note_ids_map(db: Session, note_ids: List[str]) -> dict:
+    """fetch links for a whole page of notes in one query.
+
+    replaces the per-note lookup that made list endpoints query N+1 times.
+    """
+    if not note_ids:
+        return {}
+
+    rows = db.query(models.note_links).filter(
+        or_(
+            models.note_links.c.source_id.in_(note_ids),
+            models.note_links.c.target_id.in_(note_ids),
+        )
+    ).all()
+
+    links_map = {note_id: [] for note_id in note_ids}
+    for r in rows:
+        if r.source_id in links_map:
+            links_map[r.source_id].append(r.target_id)
+        if r.target_id in links_map:
+            links_map[r.target_id].append(r.source_id)
+    return links_map
+
 def set_note_links(db: Session, note_id: str, linked_ids: List[str]):
     # delete old links involving this note
     db.execute(
@@ -159,6 +182,9 @@ NOTE_SORTS = {
 def get_notes(db: Session, search: Optional[str] = None, status: Optional[str] = None, tag: Optional[str] = None, user_id: Optional[str] = None, limit: Optional[int] = None, offset: int = 0, sort: str = "updated", date_from: Optional[date] = None, date_to: Optional[date] = None):
     query = db.query(models.Note)
     query = _apply_note_filters(query, search=search, status=status, tag=tag, user_id=user_id, date_from=date_from, date_to=date_to)
+
+    # tags load in one extra query instead of one per note
+    query = query.options(selectinload(models.Note.tags))
 
     # unknown sort keys fall back to last-tended order
     query = query.order_by(NOTE_SORTS.get(sort, NOTE_SORTS["updated"]))

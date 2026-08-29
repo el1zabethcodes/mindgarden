@@ -26,3 +26,17 @@ def apply_lightweight_migrations(target_engine=None) -> None:
             conn.execute(text(
                 "ALTER TABLE notes ADD COLUMN mood_score INTEGER"
             ))
+
+        # hot query paths: feed ordering, per-garden listings, tracker windows
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_notes_updated_at ON notes (updated_at DESC)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_notes_user_updated ON notes (user_id, updated_at DESC)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_mood_entries_user_date ON mood_entries (user_id, entry_date)"
+        ))
+        conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS idx_habit_logs_habit_date ON habit_logs (habit_id, log_date)"
+        ))
