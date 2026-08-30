@@ -8,6 +8,7 @@ from sqlalchemy import or_
 import models
 import schemas
 import security
+import cache
 
 def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
     return db.query(models.User).filter(models.User.username == username).first()
@@ -77,6 +78,8 @@ def get_or_create_tag(db: Session, tag_name: str) -> models.Tag:
         db.add(tag)
         db.commit()
         db.refresh(tag)
+        # a brand new tag changes the tag list served from cache
+        cache.invalidate("tags:")
     return tag
 
 def get_linked_note_ids(db: Session, note_id: str) -> List[str]:

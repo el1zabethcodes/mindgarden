@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 import models
 import schemas
 import crud
+import cache
 from auth import router as auth_router, get_optional_user
 from database import engine, Base, get_db
 from migrations import apply_lightweight_migrations
@@ -157,8 +158,15 @@ def delete_note(note_id: str, db: Session = Depends(get_db)):
 
 @app.get("/api/tags", response_model=List[schemas.TagBase])
 def read_tags(db: Session = Depends(get_db)):
+    # tags are hit on every page load but rarely change: serve from cache
+    cached_tags = cache.cache_get("tags:all")
+    if cached_tags is not None:
+        return cached_tags
+
     tags = crud.get_tags(db)
-    return [schemas.TagBase.model_validate(t) for t in tags]
+    result = [schemas.TagBase.model_validate(t) for t in tags]
+    cache.cache_set("tags:all", result, ttl_seconds=60)
+    return result
 
 @app.post("/api/mood", response_model=schemas.MoodEntryOut, status_code=status.HTTP_201_CREATED)
 def log_mood(
