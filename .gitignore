@@ -29,3 +29,6 @@ backend/garden.db
 *.njsproj
 *.sln
 *.sw?
+
+# python caches
+__pycache__/
