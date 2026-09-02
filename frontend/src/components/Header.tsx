@@ -56,8 +56,8 @@ export default function Header({
           onClick={() => onStatusChange("all")}
           className={`flex-1 md:flex-none px-4 py-3 rounded-2xl transition-all duration-200 text-left md:min-w-[120px] ${
             selectedStatus === "all"
-              ? "bg-white/80 shadow-sm border border-slate-200/50"
-              : "hover:bg-white/40"
+              ? "bg-[var(--glass-bg-strong)] border border-[var(--glass-border)] shadow-[var(--glass-shadow)]"
+              : "hover:bg-[var(--glass-bg)]"
           }`}
         >
           <div className="text-slate text-xs uppercase tracking-wider font-semibold font-sans">All</div>
@@ -68,8 +68,8 @@ export default function Header({
           onClick={() => onStatusChange("seed")}
           className={`flex-grow md:flex-none px-4 py-3 rounded-2xl transition-all duration-200 text-left md:min-w-[120px] ${
             selectedStatus === "seed"
-              ? "bg-white/80 shadow-sm border border-slate-200/50"
-              : "hover:bg-white/40"
+              ? "bg-[var(--glass-bg-strong)] border border-[var(--glass-border)] shadow-[var(--glass-shadow)]"
+              : "hover:bg-[var(--glass-bg)]"
           }`}
         >
           <div className="text-slate text-xs uppercase tracking-wider font-semibold flex items-center gap-1 font-sans">
@@ -82,8 +82,8 @@ export default function Header({
           onClick={() => onStatusChange("growing")}
           className={`flex-grow md:flex-none px-4 py-3 rounded-2xl transition-all duration-200 text-left md:min-w-[120px] ${
             selectedStatus === "growing"
-              ? "bg-white/80 shadow-sm border border-slate-200/50"
-              : "hover:bg-white/40"
+              ? "bg-[var(--glass-bg-strong)] border border-[var(--glass-border)] shadow-[var(--glass-shadow)]"
+              : "hover:bg-[var(--glass-bg)]"
           }`}
         >
           <div className="text-slate text-xs uppercase tracking-wider font-semibold flex items-center gap-1 font-sans">
@@ -96,8 +96,8 @@ export default function Header({
           onClick={() => onStatusChange("evergreen")}
           className={`flex-grow md:flex-none px-4 py-3 rounded-2xl transition-all duration-200 text-left md:min-w-[120px] ${
             selectedStatus === "evergreen"
-              ? "bg-white/80 shadow-sm border border-slate-200/50"
-              : "hover:bg-white/40"
+              ? "bg-[var(--glass-bg-strong)] border border-[var(--glass-border)] shadow-[var(--glass-shadow)]"
+              : "hover:bg-[var(--glass-bg)]"
           }`}
         >
           <div className="text-slate text-xs uppercase tracking-wider font-semibold flex items-center gap-1 font-sans">
@@ -115,7 +115,7 @@ export default function Header({
           placeholder="Search thoughts, links, and ideas..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-11 pr-16 py-3.5 bg-white/70 focus:bg-white/90 border border-slate-200/50 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sage/40 shadow-sm transition-all text-sm text-charcoal font-sans"
+          className="w-full pl-11 pr-16 py-3.5 bg-[var(--glass-bg)] backdrop-blur-md focus:bg-[var(--glass-bg-strong)] border border-[var(--glass-border-soft)] rounded-2xl focus:outline-none focus:ring-1 focus:ring-sage/40 shadow-sm transition-all text-sm text-charcoal font-sans"
         />
         <button
           onClick={onToggleCommandPalette}

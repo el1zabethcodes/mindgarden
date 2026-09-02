@@ -19,7 +19,7 @@ export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 
   ];
 
   return (
-    <aside className="w-64 bg-white/70 backdrop-blur-md border-r border-slate-200/30 flex flex-col h-screen fixed left-0 top-0 z-30 p-6">
+    <aside className="w-64 glass-panel glass-rail flex flex-col h-screen fixed left-0 top-0 z-30 p-6">
       {/* top branding */}
       <div className="mb-8">
         <h1 className="font-serif text-2xl font-black text-sage-dark tracking-tight">
@@ -31,7 +31,7 @@ export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 
       </div>
 
       {/* 3D clay mascot seedling */}
-      <div className="flex flex-col items-center justify-center p-4 bg-slate-50/50 border border-slate-200/20 rounded-2xl mb-6 shadow-sm">
+      <div className="flex flex-col items-center justify-center p-4 glass-inset mb-6">
         <svg viewBox="0 0 100 100" className="w-24 h-24 drop-shadow-md">
           <defs>
             <radialGradient id="clay-body" cx="35%" cy="30%" r="65%">
@@ -86,14 +86,14 @@ export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 
       {/* bottom widgets */}
       <div className="space-y-4 mt-auto">
         {/* quote card */}
-        <div className="bg-sage-light/45 border border-sage/10 p-3.5 rounded-2xl shadow-sm">
+        <div className="glass-inset p-3.5">
           <p className="font-serif italic text-xs text-sage-dark/95 leading-relaxed">
             &ldquo;Small seeds, great forests&rdquo;
           </p>
         </div>
 
         {/* daily progress */}
-        <div className="bg-slate-50/50 border border-slate-200/20 p-3.5 rounded-2xl shadow-sm">
+        <div className="glass-inset p-3.5">
           <div className="flex justify-between items-center text-[10px] font-sans font-bold uppercase tracking-wider text-slate/50 mb-1.5">
             <span>Daily growth</span>
             <span>{progressPercent}%</span>
