@@ -36,7 +36,7 @@ function ConnectionChip({
       </button>
 
       {isHovered && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-white/95 backdrop-blur-md p-3 border border-slate-200/50 shadow-xl rounded-xl z-30 text-left pointer-events-none transition-all duration-200">
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 bg-[var(--glass-bg-strong)] backdrop-blur-xl p-3 border border-[var(--glass-border)] shadow-[var(--glass-shadow-lifted)] rounded-xl z-30 text-left pointer-events-none transition-all duration-200">
           <h4 className="font-serif text-[11px] font-bold text-charcoal mb-1">{lnk.title}</h4>
           <p className="text-[9px] text-slate/85 font-sans leading-relaxed line-clamp-4">
             {getExcerpt(lnk.content) || <span className="italic text-slate/40">empty content...</span>}
@@ -211,31 +211,31 @@ export default function NoteCard({
     }
   };
 
-  // map mood color to background gradient and soft glow border/shadow styles
+  // map mood color to a tinted glass edge and a matching hover glow
   const getMoodStyles = (color: string) => {
     switch (color) {
       case "sage":
-        return "from-white/70 to-sage-light/20 border-sage/10 hover:border-sage/35 hover:shadow-[0_12px_36px_rgba(135,169,135,0.06)]";
+        return "border-sage/15 hover:border-sage/40 hover:shadow-[0_18px_48px_rgba(135,169,135,0.16)]";
       case "mint":
-        return "from-white/70 to-mint-light/35 border-mint/20 hover:border-mint-dark/40 hover:shadow-[0_12px_36px_rgba(188,227,197,0.12)]";
+        return "border-mint/25 hover:border-mint-dark/45 hover:shadow-[0_18px_48px_rgba(143,207,160,0.18)]";
       case "slate":
-        return "from-white/70 to-slate-light/35 border-slate/10 hover:border-slate/30 hover:shadow-[0_12px_36px_rgba(100,116,139,0.05)]";
+        return "border-slate/15 hover:border-slate/35 hover:shadow-[0_18px_48px_rgba(100,116,139,0.12)]";
       case "lavender_cool":
-        return "from-white/70 to-purple-50/15 border-purple-100 hover:border-purple-250 hover:shadow-[0_12px_36px_rgba(192,132,252,0.08)]";
+        return "border-purple-200/60 hover:border-purple-300 hover:shadow-[0_18px_48px_rgba(192,132,252,0.14)]";
       case "peach":
-        return "from-white/70 to-orange-50/15 border-orange-100 hover:border-orange-250 hover:shadow-[0_12px_36px_rgba(251,146,60,0.08)]";
+        return "border-orange-200/60 hover:border-orange-300 hover:shadow-[0_18px_48px_rgba(251,146,60,0.14)]";
       case "rose":
-        return "from-white/70 to-pink-50/15 border-pink-100 hover:border-pink-250 hover:shadow-[0_12px_36px_rgba(244,114,182,0.08)]";
+        return "border-pink-200/60 hover:border-pink-300 hover:shadow-[0_18px_48px_rgba(244,114,182,0.14)]";
       default:
-        return "from-white/70 to-white/60 border-slate-200/30 hover:shadow-[0_12px_36px_rgba(0,0,0,0.015)]";
+        return "border-[var(--glass-border-soft)] hover:border-[var(--glass-border)]";
     }
   };
 
   return (
     <div
-      className={`relative flex flex-col justify-between h-full bg-gradient-to-br ${getMoodStyles(
+      className={`relative flex flex-col justify-between h-full glass-card ${getMoodStyles(
         note.mood_color
-      )} backdrop-blur-md shadow-garden border rounded-2xl p-6 transition-all duration-300 hover:scale-[1.015] hover:shadow-md group`}
+      )} p-6 transition-all duration-300 hover:scale-[1.015] group`}
     >
       <div>
         {/* status and fav */}

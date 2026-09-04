@@ -205,7 +205,7 @@ export default function Home() {
         {/* Analytics and interactive charts row */}
         <div className="w-full max-w-7xl mx-auto px-6 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* stats widgets container */}
-          <div className="lg:col-span-2 bg-white/70 backdrop-blur-md border border-slate-200/30 p-5 rounded-3xl shadow-garden flex flex-col justify-between">
+          <div className="lg:col-span-2 glass-panel p-5 flex flex-col justify-between">
             <span className="text-slate text-[10px] uppercase tracking-wider font-bold font-sans">
               Garden Analytics
             </span>
@@ -251,7 +251,7 @@ export default function Home() {
             <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/50">
               <ActivityCalendar notes={notes} />
               
-              <div className="bg-slate-100/60 p-1 rounded-2xl flex gap-1 shadow-inner text-xs font-sans">
+              <div className="glass-inset p-1 flex gap-1 text-xs font-sans">
                 {(["grid", "board", "graph"] as const).map((mode) => (
                   <button
                     key={mode}
@@ -285,7 +285,7 @@ export default function Home() {
               className={`px-3 py-1.5 rounded-full border transition-all cursor-pointer text-[10px] font-semibold uppercase tracking-wider ${
                 selectedPreset === preset
                   ? "bg-sage text-white border-sage font-semibold shadow-sm"
-                  : "bg-white/70 text-slate border-slate-200/50 hover:bg-white"
+                  : "bg-[var(--glass-bg)] backdrop-blur-md text-slate border-[var(--glass-border-soft)] hover:bg-[var(--glass-bg-strong)]"
               }`}
             >
               {preset === "all" && "All"}
@@ -371,7 +371,7 @@ export default function Home() {
       </div>
 
       {/* footer floating glass banner */}
-      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 bg-white/70 backdrop-blur-md border border-slate-200/30 px-6 py-3 rounded-full shadow-lg font-serif italic text-xs text-sage-dark select-none text-center">
+      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 z-20 glass-chip px-6 py-3 font-serif italic text-xs text-sage-dark select-none text-center">
         “A garden is never finished, it is always just beginning.”
       </footer>
 
