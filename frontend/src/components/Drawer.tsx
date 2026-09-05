@@ -165,7 +165,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 backdrop-blur-sm bg-slate-900/15"
+            className="fixed inset-0 z-40 backdrop-blur-md bg-slate-900/25"
           />
 
           {/* side sheet drawer */}
@@ -174,7 +174,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 26, stiffness: 240 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-2xl bg-white shadow-drawer flex flex-col h-full border-l border-slate-100"
+            className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-2xl glass-drawer flex flex-col h-full"
           >
             {/* header controls */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100/80">
@@ -206,7 +206,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
               </div>
 
               {/* metadata parameters (status & color) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-4 rounded-2xl border border-slate-100/50">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 glass-inset p-4">
                 {/* status */}
                 <div>
                   <label className="block text-[11px] uppercase tracking-wider font-semibold text-slate/60 mb-2 font-sans">
