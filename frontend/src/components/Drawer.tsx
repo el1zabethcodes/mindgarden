@@ -220,7 +220,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
                         onClick={() => setStatus(st)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-medium border font-sans cursor-pointer transition-all ${
                           status === st
-                            ? "bg-white border-slate-200 shadow-sm font-semibold text-charcoal"
+                            ? "bg-white/70 border-[var(--glass-border)] shadow-sm font-semibold text-charcoal"
                             : "border-transparent text-slate/60 hover:text-slate hover:bg-white/50"
                         }`}
                       >

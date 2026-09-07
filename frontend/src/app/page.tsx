@@ -258,7 +258,7 @@ export default function Home() {
                     onClick={() => setViewMode(mode)}
                     className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer font-medium uppercase tracking-wider text-[10px] ${
                       viewMode === mode
-                        ? "bg-white text-charcoal shadow-sm font-semibold border border-slate-200/10"
+                        ? "bg-white/70 text-charcoal shadow-sm font-semibold border border-[var(--glass-border)]"
                         : "text-slate/60 hover:text-slate"
                     }`}
                   >

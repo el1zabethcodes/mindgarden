@@ -40,6 +40,71 @@
     inset 0 1px 0 var(--glass-highlight);
 }
 
+/* night garden theme: deep pine tones, the glass stays glass */
+html.dark {
+  --background: #10150f;
+  --foreground: #e7ede7;
+
+  --sage-light: #232e26;
+  --sage: #87a987;
+  --sage-medium: #8fba8f;
+  --sage-dark: #a3c2a3;
+
+  --mint-light: #1f2a24;
+  --mint: #2a3a30;
+  --mint-medium: #35493c;
+  --mint-dark: #8fcfa0;
+
+  --slate-light: #1a2320;
+  --slate: #94a89a;
+
+  --pearl: #1b241f;
+  --charcoal: #e7ede7;
+
+  --glass-bg: rgba(27, 36, 31, 0.45);
+  --glass-bg-strong: rgba(27, 36, 31, 0.62);
+  --glass-bg-soft: rgba(27, 36, 31, 0.32);
+  --glass-border: rgba(163, 194, 163, 0.18);
+  --glass-border-soft: rgba(163, 194, 163, 0.1);
+  --glass-highlight: rgba(231, 237, 231, 0.06);
+  --glass-shadow:
+    0 10px 34px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 var(--glass-highlight);
+  --glass-shadow-lifted:
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+html.dark body {
+  background: linear-gradient(-45deg, #10150f, #18221b, #0f1613, #10150f);
+  background-size: 400% 400%;
+  animation: gradient-flow 18s ease infinite;
+}
+
+html.dark .glass-inset {
+  background: rgba(16, 21, 15, 0.35);
+  border-color: rgba(163, 194, 163, 0.08);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+html.dark .glass-drawer {
+  background: linear-gradient(
+    160deg,
+    rgba(24, 32, 26, 0.88),
+    rgba(20, 27, 22, 0.82) 70%,
+    rgba(42, 58, 48, 0.12)
+  );
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(231, 237, 231, 0.12);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(231, 237, 231, 0.2);
+}
+
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Search, Sprout, Leaf, TreeDeciduous, Plus } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 interface HeaderProps {
   notesCount: number;
@@ -41,13 +42,16 @@ export default function Header({
           </p>
         </div>
 
-        <button
-          onClick={onPlantNote}
-          className="flex items-center justify-center gap-2 self-start md:self-auto px-5 py-3 bg-sage hover:bg-sage-medium text-white font-medium rounded-full shadow-garden transition-all duration-300 hover:scale-[1.01]"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Plant Note</span>
-        </button>
+        <div className="flex items-center gap-3 self-start md:self-auto">
+          <ThemeToggle />
+          <button
+            onClick={onPlantNote}
+            className="flex items-center justify-center gap-2 px-5 py-3 bg-sage hover:bg-sage-medium text-white font-medium rounded-full shadow-garden transition-all duration-300 hover:scale-[1.01]"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Plant Note</span>
+          </button>
+        </div>
       </div>
 
       {/* stats dashboard */}
@@ -119,7 +123,7 @@ export default function Header({
         />
         <button
           onClick={onToggleCommandPalette}
-          className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] bg-slate-100 hover:bg-slate-200 text-slate border border-slate-200 rounded font-mono flex items-center gap-0.5 cursor-pointer shadow-sm transition-all"
+          className="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-1 text-[10px] bg-slate-light/80 hover:bg-slate-light text-slate border border-slate/10 rounded font-mono flex items-center gap-0.5 cursor-pointer shadow-sm transition-all"
           title="open command palette (Cmd+K)"
         >
           <span>⌘</span><span>K</span>

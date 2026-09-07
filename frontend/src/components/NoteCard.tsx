@@ -242,7 +242,7 @@ export default function NoteCard({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             {renderStatusBadge(note.status)}
-            <span className="font-mono text-[9px] text-slate/40 bg-slate-100/40 px-1.5 py-0.5 rounded border border-slate-200/10">
+            <span className="font-mono text-[9px] text-slate/40 bg-slate-light/70 px-1.5 py-0.5 rounded border border-slate/10">
               #{note.id.substring(0, 7)}
             </span>
           </div>
@@ -278,7 +278,7 @@ export default function NoteCard({
             {note.tags.map((tag) => (
               <span
                 key={tag.id}
-                className="text-[11px] font-medium text-slate/70 bg-slate-100/60 px-2 py-0.5 rounded-full border border-slate-200/10 font-sans"
+                className="text-[11px] font-medium text-slate/70 bg-slate-light/70 px-2 py-0.5 rounded-full border border-slate/10 font-sans"
               >
                 #{tag.name}
               </span>
