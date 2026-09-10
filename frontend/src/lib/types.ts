@@ -12,6 +12,7 @@ export interface Note {
   content: string;
   status: NoteStatus;
   mood_color: string;
+  mood_score: number | null; // 1 (wilting) to 10 (blooming), null = not logged
   is_favorite: boolean;
   created_at: string;
   updated_at: string;
@@ -24,6 +25,7 @@ export interface NoteCreate {
   content?: string;
   status?: NoteStatus;
   mood_color?: string;
+  mood_score?: number | null;
   is_favorite?: boolean;
   tags?: string[];
   linked_note_ids?: string[];
@@ -34,6 +36,7 @@ export interface NoteUpdate {
   content?: string;
   status?: NoteStatus;
   mood_color?: string;
+  mood_score?: number | null;
   is_favorite?: boolean;
   tags?: string[];
   linked_note_ids?: string[];

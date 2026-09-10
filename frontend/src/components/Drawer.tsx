@@ -6,6 +6,7 @@ import { X, Eye, Edit3, Hash, Link2, HelpCircle, Layout, List } from "lucide-rea
 import { Note, NoteStatus, NoteCreate, NoteUpdate } from "../lib/types";
 import { parseMarkdown } from "../lib/utils";
 import MermaidRenderer from "./MermaidRenderer";
+import MoodPicker from "./MoodPicker";
 
 interface DrawerProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
   const [content, setContent] = useState("");
   const [status, setStatus] = useState<NoteStatus>("seed");
   const [moodColor, setMoodColor] = useState("slate");
+  const [moodScore, setMoodScore] = useState<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -45,6 +47,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
         setContent(note.content);
         setStatus(note.status);
         setMoodColor(note.mood_color);
+        setMoodScore(note.mood_score ?? null);
         setIsFavorite(note.is_favorite);
         setTags(note.tags.map((t) => t.name));
         setLinkedIds(note.linked_note_ids || []);
@@ -54,6 +57,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
         setContent("");
         setStatus("seed");
         setMoodColor("sage");
+        setMoodScore(null);
         setIsFavorite(false);
         setTags([]);
         setLinkedIds([]);
@@ -74,12 +78,13 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
       content,
       status,
       mood_color: moodColor,
+      mood_score: moodScore,
       is_favorite: isFavorite,
       tags,
       linked_note_ids: linkedIds,
     };
     onSave(payload);
-  }, [title, content, status, moodColor, isFavorite, tags, linkedIds, onSave]);
+  }, [title, content, status, moodColor, moodScore, isFavorite, tags, linkedIds, onSave]);
 
   // keydown hotkeys: Esc to close, Ctrl+Enter to save
   useEffect(() => {
@@ -251,6 +256,11 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
                       />
                     ))}
                   </div>
+                </div>
+
+                {/* mood intensity picker */}
+                <div className="md:col-span-2">
+                  <MoodPicker value={moodScore} onChange={setMoodScore} />
                 </div>
               </div>
 
