@@ -1,4 +1,4 @@
-import { Note, NoteCreate, NoteUpdate, Tag } from "./types";
+import { Note, NoteCreate, NoteUpdate, Tag, MoodEntry } from "./types";
 
 const BASE_URL = "http://localhost:8000/api";
 
@@ -60,5 +60,9 @@ export const api = {
 
   getTags: async (): Promise<Tag[]> => {
     return request<Tag[]>("/tags");
+  },
+
+  getMoodEntries: async (days = 14): Promise<MoodEntry[]> => {
+    return request<MoodEntry[]>(`/mood?days=${days}`);
   },
 };

@@ -6,6 +6,15 @@ export interface Tag {
   color: string;
 }
 
+export interface MoodEntry {
+  id: string;
+  user_id: string;
+  score: number; // 1..10
+  note: string;
+  entry_date: string; // YYYY-MM-DD
+  created_at: string;
+}
+
 export interface Note {
   id: string;
   title: string;
