@@ -186,6 +186,23 @@ def read_mood(
     gardener = current_user or crud.get_or_create_demo_user(db)
     return crud.get_mood_entries(db, gardener.id, days=days)
 
+@app.get("/api/stats", response_model=schemas.StatsOut)
+def read_stats(
+    days: int = Query(30, ge=7, le=90, description="stats window in days"),
+    current_user: Optional[models.User] = Depends(get_optional_user),
+    db: Session = Depends(get_db)
+):
+    gardener = current_user or crud.get_or_create_demo_user(db)
+    cache_key = f"stats:{gardener.id}:{days}"
+
+    cached_stats = cache.cache_get(cache_key)
+    if cached_stats is not None:
+        return cached_stats
+
+    stats = crud.get_stats(db, gardener.id, days=days)
+    cache.cache_set(cache_key, stats, ttl_seconds=60)
+    return stats
+
 @app.get("/api/habits", response_model=List[schemas.HabitOut])
 def read_habits(
     include_archived: bool = Query(False, description="also show paused habits"),

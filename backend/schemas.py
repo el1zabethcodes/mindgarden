@@ -181,3 +181,32 @@ class NotesPage(BaseModel):
     limit: int
     offset: int
     has_more: bool
+
+class MoodPoint(BaseModel):
+    date: date
+    avg_score: Optional[float] = None  # None when nothing was logged that day
+
+class TagStat(BaseModel):
+    id: str
+    name: str
+    color: str
+    count: int
+
+class ActivityDay(BaseModel):
+    notes: int = 0
+    moods: int = 0
+    checkins: int = 0
+    date: date
+
+class StatsTotals(BaseModel):
+    notes: int
+    habits: int
+    longest_streak: int
+    avg_mood: Optional[float] = None
+
+class StatsOut(BaseModel):
+    days: int
+    mood: List[MoodPoint]
+    top_tags: List[TagStat]
+    activity: List[ActivityDay]
+    totals: StatsTotals

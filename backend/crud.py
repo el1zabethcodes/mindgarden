@@ -4,7 +4,7 @@ import secrets
 from datetime import date, datetime, time, timedelta
 from typing import List, Optional
 from sqlalchemy.orm import Session, selectinload
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 import models
 import schemas
 import security
@@ -394,4 +394,97 @@ def build_habit_out(db: Session, habit: models.Habit) -> schemas.HabitOut:
         current_streak=calculate_streak(log_dates),
         total_checkins=len(log_dates),
         recent_days=[d in log_dates for d in window],
+    )
+
+def get_stats(db: Session, user_id: str, days: int = 30) -> schemas.StatsOut:
+    """aggregate greenhouse stats for the dashboard.
+
+    a fresh check-in or note may take up to the cache ttl (60s) to show
+    up here; the dashboard prefers calm numbers over live ones anyway.
+    """
+    since = date.today() - timedelta(days=days - 1)
+    window = [since + timedelta(days=i) for i in range(days)]
+
+    # mood per day
+    mood_rows = (
+        db.query(models.MoodEntry.entry_date, func.avg(models.MoodEntry.score))
+        .filter(models.MoodEntry.user_id == user_id, models.MoodEntry.entry_date >= since)
+        .group_by(models.MoodEntry.entry_date)
+        .all()
+    )
+    mood_by_day = {row[0]: round(float(row[1]), 1) for row in mood_rows}
+
+    # notes planted per day
+    note_rows = (
+        db.query(func.date(models.Note.created_at), func.count(models.Note.id))
+        .filter(
+            models.Note.user_id == user_id,
+            models.Note.created_at >= datetime.combine(since, time.min),
+        )
+        .group_by(func.date(models.Note.created_at))
+        .all()
+    )
+    notes_by_day = {row[0]: row[1] for row in note_rows}
+
+    # habit check-ins per day
+    checkin_rows = (
+        db.query(models.HabitLog.log_date, func.count(models.HabitLog.id))
+        .join(models.Habit, models.Habit.id == models.HabitLog.habit_id)
+        .filter(models.Habit.user_id == user_id, models.HabitLog.log_date >= since)
+        .group_by(models.HabitLog.log_date)
+        .all()
+    )
+    checkins_by_day = {row[0]: row[1] for row in checkin_rows}
+
+    # most used tags across this garden
+    top_tag_rows = (
+        db.query(
+            models.Tag.id,
+            models.Tag.name,
+            models.Tag.color,
+            func.count(models.note_tags.c.note_id).label("uses"),
+        )
+        .join(models.note_tags, models.note_tags.c.tag_id == models.Tag.id)
+        .join(models.Note, models.Note.id == models.note_tags.c.note_id)
+        .filter(models.Note.user_id == user_id)
+        .group_by(models.Tag.id)
+        .order_by(func.count(models.note_tags.c.note_id).desc())
+        .limit(8)
+        .all()
+    )
+
+    # totals
+    total_notes = count_notes(db, user_id=user_id)
+    habits = get_habits(db, user_id, include_archived=True)
+    longest_streak = max((calculate_streak({log.log_date for log in h.logs}) for h in habits), default=0)
+    avg_mood_row = (
+        db.query(func.avg(models.MoodEntry.score))
+        .filter(models.MoodEntry.user_id == user_id, models.MoodEntry.entry_date >= since)
+        .scalar()
+    )
+
+    return schemas.StatsOut(
+        days=days,
+        mood=[
+            schemas.MoodPoint(date=d, avg_score=mood_by_day.get(d)) for d in window
+        ],
+        top_tags=[
+            schemas.TagStat(id=r[0], name=r[1], color=r[2], count=r[3])
+            for r in top_tag_rows
+        ],
+        activity=[
+            schemas.ActivityDay(
+                date=d,
+                notes=notes_by_day.get(d, 0),
+                moods=1 if d in mood_by_day else 0,
+                checkins=checkins_by_day.get(d, 0),
+            )
+            for d in window
+        ],
+        totals=schemas.StatsTotals(
+            notes=total_notes,
+            habits=len(habits),
+            longest_streak=longest_streak,
+            avg_mood=round(float(avg_mood_row), 1) if avg_mood_row is not None else None,
+        ),
     )
