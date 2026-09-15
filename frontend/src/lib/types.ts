@@ -15,6 +15,38 @@ export interface MoodEntry {
   created_at: string;
 }
 
+export interface MoodPoint {
+  date: string;
+  avg_score: number | null;
+}
+
+export interface TagStat {
+  id: string;
+  name: string;
+  color: string;
+  count: number;
+}
+
+export interface ActivityDay {
+  date: string;
+  notes: number;
+  moods: number;
+  checkins: number;
+}
+
+export interface Stats {
+  days: number;
+  mood: MoodPoint[];
+  top_tags: TagStat[];
+  activity: ActivityDay[];
+  totals: {
+    notes: number;
+    habits: number;
+    longest_streak: number;
+    avg_mood: number | null;
+  };
+}
+
 export interface Note {
   id: string;
   title: string;

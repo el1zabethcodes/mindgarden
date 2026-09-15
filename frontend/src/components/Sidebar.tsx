@@ -11,6 +11,7 @@ interface SidebarProps {
 export default function Sidebar({ currentNav, onNavChange, progressPercent = 75 }: SidebarProps) {
   const navItems = [
     { name: "Garden", label: "🌿 Garden" },
+    { name: "Growth", label: "🌻 Growth" },
     { name: "Links", label: "🔗 Links" },
     { name: "Map", label: "🗺️ Map" },
     { name: "Tags", label: "🏷️ Tags" },

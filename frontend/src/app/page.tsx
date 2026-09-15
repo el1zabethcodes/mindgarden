@@ -19,6 +19,7 @@ import Environment from "../components/Environment";
 import GrowthChart from "../components/GrowthChart";
 import OnboardingTour from "../components/OnboardingTour";
 import MoodStrip from "../components/MoodStrip";
+import Dashboard from "../components/Dashboard";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -204,6 +205,10 @@ export default function Home() {
         />
 
         {/* Analytics and interactive charts row */}
+        {currentNav === "Growth" ? (
+          <Dashboard />
+        ) : (
+        <>
         <div className="w-full max-w-7xl mx-auto px-6 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* stats widgets container */}
           <div className="lg:col-span-2 glass-panel p-5 flex flex-col justify-between">
@@ -371,6 +376,8 @@ export default function Home() {
             </motion.div>
           )}
         </main>
+        </>
+        )}
       </div>
 
       {/* footer floating glass banner */}
