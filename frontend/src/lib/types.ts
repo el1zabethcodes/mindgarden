@@ -34,6 +34,24 @@ export interface ActivityDay {
   checkins: number;
 }
 
+export interface Habit {
+  id: string;
+  name: string;
+  description: string;
+  icon: string; // botanical key: seedling, leaf, sun...
+  is_archived: boolean;
+  created_at: string;
+  current_streak: number;
+  total_checkins: number;
+  recent_days: boolean[]; // last 30 days, oldest first
+}
+
+export interface HabitCheckin {
+  habit_id: string;
+  log_date: string;
+  current_streak: number;
+}
+
 export interface Stats {
   days: number;
   mood: MoodPoint[];

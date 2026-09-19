@@ -1,4 +1,4 @@
-import { Note, NoteCreate, NoteUpdate, Tag, MoodEntry, Stats } from "./types";
+import { Note, NoteCreate, NoteUpdate, Tag, MoodEntry, Stats, Habit, HabitCheckin } from "./types";
 
 const BASE_URL = "http://localhost:8000/api";
 
@@ -68,5 +68,20 @@ export const api = {
 
   getStats: async (days = 30): Promise<Stats> => {
     return request<Stats>(`/stats?days=${days}`);
+  },
+
+  getHabits: async (): Promise<Habit[]> => {
+    return request<Habit[]>("/habits");
+  },
+
+  createHabit: async (data: { name: string; description?: string; icon?: string }): Promise<Habit> => {
+    return request<Habit>("/habits", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  checkInHabit: async (habitId: string): Promise<HabitCheckin> => {
+    return request<HabitCheckin>(`/habits/${habitId}/check-in`, { method: "POST" });
   },
 };

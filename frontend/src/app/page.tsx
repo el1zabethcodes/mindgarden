@@ -20,6 +20,7 @@ import GrowthChart from "../components/GrowthChart";
 import OnboardingTour from "../components/OnboardingTour";
 import MoodStrip from "../components/MoodStrip";
 import Dashboard from "../components/Dashboard";
+import HabitsPanel from "../components/HabitsPanel";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -283,6 +284,8 @@ export default function Home() {
 
         {/* Filter presets bar */}
         <MoodStrip />
+
+        <HabitsPanel />
 
         <div className="w-full max-w-7xl mx-auto px-6 mb-6 flex flex-wrap gap-2 text-xs font-sans">
           <span className="text-slate/40 flex items-center font-bold mr-1 uppercase tracking-wider text-[9px]">Filters:</span>
