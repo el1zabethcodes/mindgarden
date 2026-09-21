@@ -256,7 +256,7 @@ export default function Home() {
             
             {/* simple layout view switchers and calendar logs */}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100/50">
-              <ActivityCalendar notes={notes} />
+              <ActivityCalendar />
               
               <div className="glass-inset p-1 flex gap-1 text-xs font-sans">
                 {(["grid", "board", "graph"] as const).map((mode) => (
