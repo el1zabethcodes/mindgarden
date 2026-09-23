@@ -31,6 +31,7 @@ export default function Home() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("updated");
 
   // presets & active nav
   const [selectedPreset, setSelectedPreset] = useState<"all" | "orphan" | "hub" | "code">("all");
@@ -56,24 +57,26 @@ export default function Home() {
     try {
       const activeStatus = status === "all" ? undefined : status;
       const activeTag = selectedTag || undefined;
-      
-      const [fetchedNotes, fetchedTags] = await Promise.all([
-        api.getNotes({
+
+      const [feedPage, fetchedTags] = await Promise.all([
+        api.getFeed({
           search: debouncedSearch || undefined,
           status: activeStatus,
           tag: activeTag,
+          sort: sortBy,
+          limit: 100,
         }),
         api.getTags(),
       ]);
 
-      setNotes(fetchedNotes);
+      setNotes(feedPage.items);
       setTags(fetchedTags);
     } catch (err) {
       console.error("error fetching mindgarden data:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [debouncedSearch, status, selectedTag]);
+  }, [debouncedSearch, status, selectedTag, sortBy]);
 
   useEffect(() => {
     refreshData();
@@ -305,6 +308,18 @@ export default function Home() {
               {preset === "code" && "💻 Code"}
             </button>
           ))}
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="ml-auto px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider font-sans bg-[var(--glass-bg)] backdrop-blur-md text-slate border border-[var(--glass-border-soft)] cursor-pointer focus:outline-none focus:ring-1 focus:ring-sage/40"
+            title="how the feed is ordered"
+          >
+            <option value="updated">recently tended</option>
+            <option value="created">newly planted</option>
+            <option value="title">title a–z</option>
+            <option value="mood">brightest mood</option>
+          </select>
         </div>
 
         {/* tags list bar */}

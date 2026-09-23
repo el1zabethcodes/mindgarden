@@ -1,4 +1,4 @@
-import { Note, NoteCreate, NoteUpdate, Tag, MoodEntry, Stats, Habit, HabitCheckin } from "./types";
+import { Note, NoteCreate, NoteUpdate, Tag, MoodEntry, Stats, Habit, HabitCheckin, FeedPage } from "./types";
 
 const BASE_URL = "http://localhost:8000/api";
 
@@ -32,6 +32,26 @@ export const api = {
 
     const query = params.toString() ? `?${params.toString()}` : "";
     return request<Note[]>(`/notes${query}`);
+  },
+
+  getFeed: async (opts?: {
+    limit?: number;
+    offset?: number;
+    search?: string;
+    status?: string;
+    tag?: string;
+    sort?: string;
+  }): Promise<FeedPage> => {
+    const params = new URLSearchParams();
+    if (opts?.limit) params.append("limit", String(opts.limit));
+    if (opts?.offset) params.append("offset", String(opts.offset));
+    if (opts?.search) params.append("search", opts.search);
+    if (opts?.status) params.append("status", opts.status);
+    if (opts?.tag) params.append("tag", opts.tag);
+    if (opts?.sort) params.append("sort", opts.sort);
+
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return request<FeedPage>(`/feed${query}`);
   },
 
   getNote: async (id: string): Promise<Note> => {

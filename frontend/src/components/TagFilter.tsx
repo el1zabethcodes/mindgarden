@@ -51,7 +51,7 @@ export default function TagFilter({ tags, selectedTag, onSelectTag }: TagFilterP
         className={`px-3 py-1.5 rounded-full text-xs font-medium border font-sans transition-all shrink-0 cursor-pointer ${
           selectedTag === null
             ? "bg-charcoal text-white border-charcoal"
-            : "bg-white/70 text-slate border-slate-200/50 hover:bg-white"
+            : "glass-chip text-slate hover:text-sage-dark"
         }`}
       >
         All Tags

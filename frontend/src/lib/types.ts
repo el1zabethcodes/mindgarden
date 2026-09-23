@@ -6,6 +6,14 @@ export interface Tag {
   color: string;
 }
 
+export interface FeedPage {
+  items: Note[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
+}
+
 export interface MoodEntry {
   id: string;
   user_id: string;
