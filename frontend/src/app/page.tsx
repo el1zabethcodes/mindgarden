@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { api } from "../lib/api";
 import { Note, Tag, NoteCreate, NoteUpdate, NoteStatus } from "../lib/types";
@@ -46,6 +46,12 @@ export default function Home() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // infinite feed state
+  const [feedTotal, setFeedTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const growingMoreRef = useRef(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
   // debounce search
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 250);
@@ -64,12 +70,14 @@ export default function Home() {
           status: activeStatus,
           tag: activeTag,
           sort: sortBy,
-          limit: 100,
+          limit: 12,
         }),
         api.getTags(),
       ]);
 
       setNotes(feedPage.items);
+      setFeedTotal(feedPage.total);
+      setHasMore(feedPage.has_more);
       setTags(fetchedTags);
     } catch (err) {
       console.error("error fetching mindgarden data:", err);
@@ -81,6 +89,46 @@ export default function Home() {
   useEffect(() => {
     refreshData();
   }, [refreshData]);
+
+  // grow the feed one page at a time as the sentinel scrolls into view
+  const loadMore = useCallback(async () => {
+    if (growingMoreRef.current || !hasMore) return;
+    growingMoreRef.current = true;
+    try {
+      const activeStatus = status === "all" ? undefined : status;
+      const page = await api.getFeed({
+        search: debouncedSearch || undefined,
+        status: activeStatus,
+        tag: selectedTag || undefined,
+        sort: sortBy,
+        limit: 12,
+        offset: notes.length,
+      });
+      setNotes((prev) => {
+        const seen = new Set(prev.map((n) => n.id));
+        return [...prev, ...page.items.filter((n) => !seen.has(n.id))];
+      });
+      setHasMore(page.has_more);
+      setFeedTotal(page.total);
+    } catch (err) {
+      console.error("failed to grow the feed:", err);
+    } finally {
+      growingMoreRef.current = false;
+    }
+  }, [hasMore, status, debouncedSearch, selectedTag, sortBy, notes.length]);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) loadMore();
+      },
+      { rootMargin: "600px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   // hotkeys
   useEffect(() => {
@@ -392,6 +440,16 @@ export default function Home() {
                 })}
               </AnimatePresence>
             </motion.div>
+          )}
+
+          {/* infinite scroll sentinel */}
+          {hasMore && (
+            <div ref={sentinelRef} className="flex justify-center items-center gap-2 py-10">
+              <span className="w-2 h-2 rounded-full bg-sage animate-pulse" />
+              <span className="text-slate/50 text-xs font-sans">
+                growing more sprouts... {notes.length} of {feedTotal}
+              </span>
+            </div>
           )}
         </main>
         </>
