@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { api } from "../lib/api";
 import { Habit } from "../lib/types";
@@ -72,7 +73,12 @@ export default function HabitsPanel() {
   const isCheckedToday = (h: Habit) => h.recent_days[h.recent_days.length - 1] === true;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 mb-6">
+    <motion.div
+      className="w-full max-w-7xl mx-auto px-6 mb-6"
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 22, delay: 0.06 }}
+    >
       <div className="glass-panel p-5 md:p-6">
         <div className="flex items-baseline justify-between mb-4 flex-wrap gap-2">
           <div>
@@ -159,6 +165,6 @@ export default function HabitsPanel() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

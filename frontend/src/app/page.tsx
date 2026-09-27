@@ -408,7 +408,7 @@ export default function Home() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               <AnimatePresence mode="popLayout">
-                {finalDisplayNotes.map((note) => {
+                {finalDisplayNotes.map((note, index) => {
                   const linkedNotes = note.linked_note_ids
                     ? note.linked_note_ids
                         .map((id) => {
@@ -422,10 +422,15 @@ export default function Home() {
                     <motion.div
                       key={note.id}
                       layout
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ duration: 0.25 }}
+                      initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.94 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 24,
+                        delay: Math.min(index * 0.04, 0.5),
+                      }}
                     >
                       <NoteCard
                         note={note}

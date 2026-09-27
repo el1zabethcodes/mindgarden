@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { api } from "../lib/api";
 import { MoodEntry } from "../lib/types";
 import { moodEmoji } from "./MoodPicker";
@@ -28,7 +29,12 @@ export default function MoodStrip() {
   });
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 mb-6">
+    <motion.div
+      className="w-full max-w-7xl mx-auto px-6 mb-6"
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 200, damping: 22 }}
+    >
       <div className="glass-inset px-5 py-4 flex items-center gap-6 flex-wrap">
         <div className="shrink-0">
           <h3 className="text-[11px] uppercase tracking-wider font-bold text-slate/60 font-sans">
@@ -71,6 +77,6 @@ export default function MoodStrip() {
           })}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
