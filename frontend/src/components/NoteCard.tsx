@@ -249,9 +249,10 @@ export default function NoteCard({
           
           <button
             onClick={() => onToggleFavorite(note)}
+            aria-label={note.is_favorite ? "remove from favorites" : "add to favorites"}
             className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-              note.is_favorite 
-                ? "bg-rose-50/80 text-rose-500 hover:bg-rose-100" 
+              note.is_favorite
+                ? "bg-rose-50/80 text-rose-500 hover:bg-rose-100"
                 : "text-slate/40 hover:text-rose-400 hover:bg-slate-100/50"
             }`}
           >
@@ -321,6 +322,7 @@ export default function NoteCard({
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <button
               onClick={() => onEdit(note)}
+              aria-label={`edit note ${note.title}`}
               className="p-1.5 rounded-lg hover:bg-slate-100/70 hover:text-charcoal transition-colors cursor-pointer"
               title="edit note"
             >
@@ -328,6 +330,7 @@ export default function NoteCard({
             </button>
             <button
               onClick={() => onDelete(note.id)}
+              aria-label={`delete note ${note.title}`}
               className="p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors cursor-pointer"
               title="delete note"
             >

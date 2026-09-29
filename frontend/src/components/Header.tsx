@@ -117,6 +117,7 @@ export default function Header({
         <input
           type="text"
           placeholder="Search thoughts, links, and ideas..."
+          aria-label="search notes"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-11 pr-16 py-3.5 bg-[var(--glass-bg)] backdrop-blur-md focus:bg-[var(--glass-bg-strong)] border border-[var(--glass-border-soft)] rounded-2xl focus:outline-none focus:ring-1 focus:ring-sage/40 shadow-sm transition-all text-sm text-charcoal font-sans"
