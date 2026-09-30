@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Sprout, Leaf, TreeDeciduous, Plus } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
@@ -29,13 +29,29 @@ export default function Header({
   onPlantNote,
   onToggleCommandPalette,
 }: HeaderProps) {
+  const [gardenerName, setGardenerName] = useState("Elizaveta");
+
+  // the greeting follows the name saved in settings
+  useEffect(() => {
+    const readName = () => {
+      const saved = localStorage.getItem("mindgarden-gardener-name");
+      if (saved !== null) setGardenerName(saved || "gardener");
+    };
+    readName();
+    window.addEventListener("mindgarden:name-changed", readName);
+    return () => window.removeEventListener("mindgarden:name-changed", readName);
+  }, []);
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <header className="w-full max-w-7xl mx-auto px-4 pt-10 pb-6">
       {/* top brand and cta */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
           <h1 className="font-serif text-3xl md:text-4xl text-charcoal tracking-tight font-bold">
-            Good morning, Elizaveta 🌿
+            {greeting}, {gardenerName} 🌿
           </h1>
           <p className="text-slate text-sm mt-1 font-sans font-light">
             Let’s grow something wonderful today.

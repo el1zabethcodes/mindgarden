@@ -21,6 +21,7 @@ import OnboardingTour from "../components/OnboardingTour";
 import MoodStrip from "../components/MoodStrip";
 import Dashboard from "../components/Dashboard";
 import HabitsPanel from "../components/HabitsPanel";
+import SettingsPanel from "../components/SettingsPanel";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -259,6 +260,8 @@ export default function Home() {
         {/* Analytics and interactive charts row */}
         {currentNav === "Growth" ? (
           <Dashboard />
+        ) : currentNav === "Settings" ? (
+          <SettingsPanel />
         ) : (
         <>
         <div className="w-full max-w-7xl mx-auto px-6 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
