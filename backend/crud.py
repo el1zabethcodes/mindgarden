@@ -215,6 +215,7 @@ def create_note(db: Session, note_in: schemas.NoteCreate, owner: Optional[models
         status=note_in.status,
         mood_color=note_in.mood_color,
         mood_score=note_in.mood_score,
+        entry_date=note_in.entry_date,
         is_favorite=note_in.is_favorite,
         user_id=owner.id if owner else None
     )

@@ -80,6 +80,7 @@ export interface Note {
   status: NoteStatus;
   mood_color: string;
   mood_score: number | null; // 1 (wilting) to 10 (blooming), null = not logged
+  entry_date: string | null; // optional calendar day "YYYY-MM-DD"
   is_favorite: boolean;
   created_at: string;
   updated_at: string;
@@ -93,6 +94,7 @@ export interface NoteCreate {
   status?: NoteStatus;
   mood_color?: string;
   mood_score?: number | null;
+  entry_date?: string | null;
   is_favorite?: boolean;
   tags?: string[];
   linked_note_ids?: string[];
@@ -104,6 +106,7 @@ export interface NoteUpdate {
   status?: NoteStatus;
   mood_color?: string;
   mood_score?: number | null;
+  entry_date?: string | null;
   is_favorite?: boolean;
   tags?: string[];
   linked_note_ids?: string[];

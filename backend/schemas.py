@@ -134,6 +134,8 @@ class NoteBase(BaseModel):
     status: Optional[str] = "seed"  # "seed" | "growing" | "evergreen"
     mood_color: Optional[str] = "slate"
     mood_score: Optional[int] = None  # 1 (wilting) to 10 (blooming)
+    # optional calendar day the note belongs to
+    entry_date: Optional[date] = None
 
     @field_validator("mood_score")
     @classmethod
@@ -153,6 +155,7 @@ class NoteUpdate(BaseModel):
     status: Optional[str] = None
     mood_color: Optional[str] = None
     mood_score: Optional[int] = None
+    entry_date: Optional[date] = None
     is_favorite: Optional[bool] = None
     tags: Optional[List[str]] = None
     linked_note_ids: Optional[List[str]] = None

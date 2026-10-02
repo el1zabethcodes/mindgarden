@@ -245,6 +245,14 @@ export default function NoteCard({
             <span className="font-mono text-[9px] text-slate/40 bg-slate-light/70 px-1.5 py-0.5 rounded border border-slate/10">
               #{note.id.substring(0, 7)}
             </span>
+            {note.entry_date && (
+              <span
+                className="text-[9px] font-medium text-sage-dark bg-sage-light/60 px-1.5 py-0.5 rounded-full border border-sage/10 font-sans"
+                title="garden day this note belongs to"
+              >
+                🗓 {note.entry_date}
+              </span>
+            )}
           </div>
           
           <button

@@ -94,6 +94,8 @@ class Note(Base):
     mood_color = Column(String, default="slate")
     # how the gardener felt while tending this note, 1 (wilting) to 10 (blooming)
     mood_score = Column(Integer, nullable=True)
+    # optional calendar day the note belongs to (backfilling older thoughts)
+    entry_date = Column(Date, nullable=True, index=True)
     is_favorite = Column(Boolean, default=False)
     # nullable until every note belongs to a registered gardener
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)

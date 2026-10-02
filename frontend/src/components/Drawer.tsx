@@ -31,6 +31,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
   const [status, setStatus] = useState<NoteStatus>("seed");
   const [moodColor, setMoodColor] = useState("slate");
   const [moodScore, setMoodScore] = useState<number | null>(null);
+  const [entryDate, setEntryDate] = useState<string>("");
   const [isFavorite, setIsFavorite] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -48,6 +49,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
         setStatus(note.status);
         setMoodColor(note.mood_color);
         setMoodScore(note.mood_score ?? null);
+        setEntryDate(note.entry_date ?? "");
         setIsFavorite(note.is_favorite);
         setTags(note.tags.map((t) => t.name));
         setLinkedIds(note.linked_note_ids || []);
@@ -58,6 +60,7 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
         setStatus("seed");
         setMoodColor("sage");
         setMoodScore(null);
+        setEntryDate("");
         setIsFavorite(false);
         setTags([]);
         setLinkedIds([]);
@@ -79,12 +82,13 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
       status,
       mood_color: moodColor,
       mood_score: moodScore,
+      entry_date: entryDate || null,
       is_favorite: isFavorite,
       tags,
       linked_note_ids: linkedIds,
     };
     onSave(payload);
-  }, [title, content, status, moodColor, moodScore, isFavorite, tags, linkedIds, onSave]);
+  }, [title, content, status, moodColor, moodScore, entryDate, isFavorite, tags, linkedIds, onSave]);
 
   // keydown hotkeys: Esc to close, Ctrl+Enter to save
   useEffect(() => {
@@ -261,6 +265,23 @@ export default function Drawer({ isOpen, note, onClose, onSave, allNotes }: Draw
                 {/* mood intensity picker */}
                 <div className="md:col-span-2">
                   <MoodPicker value={moodScore} onChange={setMoodScore} />
+                </div>
+
+                {/* calendar day the note belongs to */}
+                <div className="md:col-span-2">
+                  <label className="block text-[11px] uppercase tracking-wider font-semibold text-slate/60 mb-2 font-sans">
+                    garden day
+                  </label>
+                  <input
+                    type="date"
+                    value={entryDate}
+                    onChange={(e) => setEntryDate(e.target.value)}
+                    aria-label="calendar day of this note"
+                    className="px-3 py-2 text-xs font-sans bg-[var(--glass-bg)] border border-[var(--glass-border-soft)] rounded-xl focus:outline-none focus:ring-1 focus:ring-sage/40 text-charcoal"
+                  />
+                  <span className="text-[10px] text-slate/40 font-sans ml-3">
+                    optional — pin a thought to any past day
+                  </span>
                 </div>
               </div>
 

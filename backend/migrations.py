@@ -26,6 +26,10 @@ def apply_lightweight_migrations(target_engine=None) -> None:
             conn.execute(text(
                 "ALTER TABLE notes ADD COLUMN mood_score INTEGER"
             ))
+        if "entry_date" not in columns:
+            conn.execute(text(
+                "ALTER TABLE notes ADD COLUMN entry_date DATE"
+            ))
 
         # hot query paths: feed ordering, per-garden listings, tracker windows
         conn.execute(text(
