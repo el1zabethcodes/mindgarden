@@ -41,6 +41,8 @@ export const api = {
     status?: string;
     tag?: string;
     sort?: string;
+    dateFrom?: string;
+    dateTo?: string;
   }): Promise<FeedPage> => {
     const params = new URLSearchParams();
     if (opts?.limit) params.append("limit", String(opts.limit));
@@ -49,6 +51,8 @@ export const api = {
     if (opts?.status) params.append("status", opts.status);
     if (opts?.tag) params.append("tag", opts.tag);
     if (opts?.sort) params.append("sort", opts.sort);
+    if (opts?.dateFrom) params.append("date_from", opts.dateFrom);
+    if (opts?.dateTo) params.append("date_to", opts.dateTo);
 
     const query = params.toString() ? `?${params.toString()}` : "";
     return request<FeedPage>(`/feed${query}`);

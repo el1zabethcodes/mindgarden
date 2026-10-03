@@ -167,10 +167,12 @@ def _apply_note_filters(query, search: Optional[str] = None, status: Optional[st
             )
         )
 
+    # the "garden day" of a note: its pinned date, or the day it was planted
+    garden_day = func.coalesce(models.Note.entry_date, func.date(models.Note.created_at))
     if date_from:
-        query = query.filter(models.Note.created_at >= datetime.combine(date_from, time.min))
+        query = query.filter(garden_day >= date_from)
     if date_to:
-        query = query.filter(models.Note.created_at <= datetime.combine(date_to, time.max))
+        query = query.filter(garden_day <= date_to)
 
     return query
 
