@@ -112,6 +112,24 @@ class TestNotes:
         ).json()
         assert future["total"] == 0
 
+    def test_search_matches_tags_and_requires_all_words(self, client, auth_headers):
+        client.post("/api/notes", json={
+            "title": "watering schedule",
+            "content": "morning rounds through the beds",
+            "tags": ["greenhouse"],
+        }, headers=auth_headers)
+        client.post("/api/notes", json={"title": "compost notes"}, headers=auth_headers)
+
+        by_tag = client.get("/api/feed?search=greenhouse", headers=auth_headers).json()
+        assert by_tag["total"] == 1
+        assert by_tag["items"][0]["title"] == "watering schedule"
+
+        both_words = client.get("/api/feed?search=watering schedule", headers=auth_headers).json()
+        assert both_words["total"] == 1
+
+        missing_word = client.get("/api/feed?search=watering moonlight", headers=auth_headers).json()
+        assert missing_word["total"] == 0
+
     def test_token_scoping_hides_other_gardens(self, client, auth_headers, garden_password):
         client.post("/api/notes", json={"title": "mine only"}, headers=auth_headers)
 

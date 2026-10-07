@@ -159,13 +159,18 @@ def _apply_note_filters(query, search: Optional[str] = None, status: Optional[st
         query = query.filter(models.Note.tags.any(models.Tag.id == tag_id))
 
     if search:
-        search_filter = f"%{search}%"
-        query = query.filter(
-            or_(
-                models.Note.title.like(search_filter),
-                models.Note.content.like(search_filter)
+        # every word must match somewhere: title, content, or a tag name
+        for word in re.split(r"\s+", search.strip()):
+            if not word:
+                continue
+            pattern = f"%{word}%"
+            query = query.filter(
+                or_(
+                    models.Note.title.like(pattern),
+                    models.Note.content.like(pattern),
+                    models.Note.tags.any(models.Tag.name.like(pattern)),
+                )
             )
-        )
 
     # the "garden day" of a note: its pinned date, or the day it was planted
     garden_day = func.coalesce(models.Note.entry_date, func.date(models.Note.created_at))
