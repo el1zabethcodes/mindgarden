@@ -325,7 +325,12 @@ def get_mood_entries(db: Session, user_id: str, days: int = 30) -> List[models.M
     )
 
 def get_habits(db: Session, user_id: str, include_archived: bool = False) -> List[models.Habit]:
-    query = db.query(models.Habit).filter(models.Habit.user_id == user_id)
+    query = (
+        db.query(models.Habit)
+        # logs load in one extra query; streak math reads them for every habit
+        .options(selectinload(models.Habit.logs))
+        .filter(models.Habit.user_id == user_id)
+    )
     if not include_archived:
         query = query.filter(models.Habit.is_archived == False)
     return query.order_by(models.Habit.created_at.asc()).all()

@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
 from datetime import date
+import hashlib
+import json
 from typing import List, Optional
-from fastapi import FastAPI, Depends, HTTPException, Query, status
+from fastapi import FastAPI, Depends, HTTPException, Query, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 import models
@@ -190,6 +193,8 @@ def read_mood(
 
 @app.get("/api/stats", response_model=schemas.StatsOut)
 def read_stats(
+    request: Request,
+    response: Response,
     days: int = Query(30, ge=7, le=90, description="stats window in days"),
     current_user: Optional[models.User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
@@ -197,12 +202,18 @@ def read_stats(
     gardener = current_user or crud.get_or_create_demo_user(db)
     cache_key = f"stats:{gardener.id}:{days}"
 
-    cached_stats = cache.cache_get(cache_key)
-    if cached_stats is not None:
-        return cached_stats
+    stats = cache.cache_get(cache_key)
+    if stats is None:
+        stats = crud.get_stats(db, gardener.id, days=days)
+        cache.cache_set(cache_key, stats, ttl_seconds=60)
 
-    stats = crud.get_stats(db, gardener.id, days=days)
-    cache.cache_set(cache_key, stats, ttl_seconds=60)
+    # browsers revalidate with if-none-match and get a free 304
+    etag = '"' + hashlib.sha256(
+        json.dumps(jsonable_encoder(stats), default=str, sort_keys=True).encode()
+    ).hexdigest() + '"'
+    response.headers["ETag"] = etag
+    if request.headers.get("if-none-match") == etag:
+        return Response(status_code=status.HTTP_304_NOT_MODIFIED)
     return stats
 
 @app.get("/api/habits", response_model=List[schemas.HabitOut])
