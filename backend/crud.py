@@ -276,16 +276,23 @@ def delete_note(db: Session, note_id: str) -> bool:
     db_note = get_note(db, note_id)
     if not db_note:
         return False
-        
+
     # cleanup links involving this note
     db.execute(
         models.note_links.delete().where(
             or_(models.note_links.c.source_id == note_id, models.note_links.c.target_id == note_id)
         )
     )
-    
+
     db.delete(db_note)
     db.commit()
+
+    # tags that just lost their last note retire quietly
+    db.query(models.Tag).filter(~models.Tag.notes.any()).delete(synchronize_session=False)
+    db.commit()
+
+    # the tag list served from cache must not show retired tags
+    cache.invalidate("tags:")
     return True
 
 def get_tags(db: Session):

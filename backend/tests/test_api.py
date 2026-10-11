@@ -130,6 +130,17 @@ class TestNotes:
         missing_word = client.get("/api/feed?search=watering moonlight", headers=auth_headers).json()
         assert missing_word["total"] == 0
 
+    def test_deleting_last_note_retires_orphan_tag(self, client, auth_headers):
+        created = client.post("/api/notes", json={
+            "title": "lonely sprout",
+            "tags": ["solo-tag"],
+        }, headers=auth_headers).json()
+        assert any(t["name"] == "solo-tag" for t in client.get("/api/tags").json())
+
+        client.delete(f"/api/notes/{created['id']}", headers=auth_headers)
+
+        assert all(t["name"] != "solo-tag" for t in client.get("/api/tags").json())
+
     def test_token_scoping_hides_other_gardens(self, client, auth_headers, garden_password):
         client.post("/api/notes", json={"title": "mine only"}, headers=auth_headers)
 

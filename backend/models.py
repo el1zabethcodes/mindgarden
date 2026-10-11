@@ -15,7 +15,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    notes = relationship("Note", back_populates="owner")
+    # deleting a gardener takes their whole garden along
+    notes = relationship("Note", back_populates="owner", cascade="all, delete-orphan")
 
 class MoodEntry(Base):
     __tablename__ = "mood_entries"
