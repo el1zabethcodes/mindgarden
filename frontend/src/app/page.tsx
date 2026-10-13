@@ -22,6 +22,7 @@ import MoodStrip from "../components/MoodStrip";
 import Dashboard from "../components/Dashboard";
 import HabitsPanel from "../components/HabitsPanel";
 import SettingsPanel from "../components/SettingsPanel";
+import { NoteCardSkeleton } from "../components/Skeleton";
 
 export default function Home() {
   const [notes, setNotes] = useState<Note[]>([]);
@@ -383,11 +384,10 @@ export default function Home() {
         {/* main layout renders */}
         <main className="w-full max-w-7xl mx-auto px-6">
           {isLoading ? (
-            <div className="flex justify-center items-center py-20">
-              <span className="text-slate text-sm font-sans flex items-center gap-2 animate-pulse">
-                <span className="w-2.5 h-2.5 rounded-full bg-sage"></span>
-                Tending garden...
-              </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-label="loading notes">
+              {Array.from({ length: 6 }, (_, i) => (
+                <NoteCardSkeleton key={i} />
+              ))}
             </div>
           ) : finalDisplayNotes.length === 0 ? (
             <EmptyState onPlantNote={handlePlantNote} />

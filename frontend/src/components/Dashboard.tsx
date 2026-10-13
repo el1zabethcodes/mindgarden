@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { Stats, TagStat } from "../lib/types";
+import { ChartSkeleton, SummaryCardsSkeleton, SkeletonBlock } from "./Skeleton";
 
 const TAG_HEX: Record<string, string> = {
   sage: "#87a987",
@@ -92,8 +93,15 @@ export default function Dashboard() {
           the greenhouse is resting — could not reach the stats api
         </div>
       ) : !stats ? (
-        <div className="glass-panel p-10 text-center text-slate/60 font-sans text-sm animate-pulse">
-          gathering sunlight...
+        <div className="flex flex-col gap-6" aria-label="loading greenhouse statistics">
+          <ChartSkeleton />
+          <SummaryCardsSkeleton />
+          <div className="glass-panel p-6 md:p-8 space-y-3">
+            <SkeletonBlock className="h-3 w-44 rounded-full" />
+            {Array.from({ length: 4 }, (_, i) => (
+              <SkeletonBlock key={i} className="h-3 w-full rounded-full" />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-6">
