@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Navigation, Terminal, ArrowRight, X } from "lucide-react";
+import { Sparkles, Navigation, Terminal, Sprout, Moon, ArrowRight, X } from "lucide-react";
 
 export default function OnboardingTour() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,7 +41,19 @@ export default function OnboardingTour() {
       title: "Command Palette ⌘K",
       desc: "Press Cmd+K or Ctrl+K anywhere to activate the Command Palette. Quickly search your thoughts, filter tags, or run action commands like /new or /graph.",
       icon: Terminal,
-      color: "text-slate bg-slate-100",
+      color: "text-slate bg-slate-light",
+    },
+    {
+      title: "The Greenhouse 🌻",
+      desc: "Look after the gardener, too: log a daily mood, tend small rituals on the overview, and open the Growth screen for gentle monthly charts and your most-used tags.",
+      icon: Sprout,
+      color: "text-sage-dark bg-sage-light/60",
+    },
+    {
+      title: "Day & Night 🌙",
+      desc: "The garden keeps its glass in every light. Switch to the night garden from the header, and visit Settings to choose how the garden greets you.",
+      icon: Moon,
+      color: "text-slate bg-slate-light/80",
     },
   ];
 
@@ -84,11 +96,11 @@ export default function OnboardingTour() {
           {/* progress indicator */}
           <div className="flex items-center justify-between mt-auto">
             <div className="flex gap-1.5">
-              {[1, 2, 3].map((s) => (
+              {steps.map((_, i) => (
                 <div
-                  key={s}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                    step === s ? "w-4 bg-sage" : "bg-slate-200"
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    step === i + 1 ? "w-4 bg-sage" : "w-1.5 bg-slate-200"
                   }`}
                 />
               ))}
@@ -98,13 +110,13 @@ export default function OnboardingTour() {
               {step > 1 && (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="px-3.5 py-1.5 border border-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-50 text-slate cursor-pointer"
+                  className="px-3.5 py-1.5 border border-slate/10 text-xs font-semibold rounded-xl hover:bg-slate-light/70 text-slate cursor-pointer"
                 >
                   Back
                 </button>
               )}
 
-              {step < 3 ? (
+              {step < steps.length ? (
                 <button
                   onClick={() => setStep(step + 1)}
                   className="px-4 py-2 bg-sage hover:bg-sage-medium text-white text-xs font-semibold rounded-xl shadow-sm hover:scale-[1.01] flex items-center gap-1 cursor-pointer"
