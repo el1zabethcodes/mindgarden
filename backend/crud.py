@@ -434,14 +434,15 @@ def get_stats(db: Session, user_id: str, days: int = 30) -> schemas.StatsOut:
     )
     mood_by_day = {row[0]: round(float(row[1]), 1) for row in mood_rows}
 
-    # notes planted per day
+    # notes planted per garden day (pinned date, or the day they were planted)
+    garden_day = func.coalesce(models.Note.entry_date, func.date(models.Note.created_at))
     note_rows = (
-        db.query(func.date(models.Note.created_at), func.count(models.Note.id))
+        db.query(garden_day, func.count(models.Note.id))
         .filter(
             models.Note.user_id == user_id,
-            models.Note.created_at >= datetime.combine(since, time.min),
+            garden_day >= since,
         )
-        .group_by(func.date(models.Note.created_at))
+        .group_by(garden_day)
         .all()
     )
     notes_by_day = {row[0]: row[1] for row in note_rows}

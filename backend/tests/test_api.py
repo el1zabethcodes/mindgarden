@@ -185,3 +185,71 @@ class TestMoodAndHabits:
 
         habits = client.get("/api/habits", headers=auth_headers).json()
         assert habits[0]["total_checkins"] == 1
+
+    def test_habit_rename_and_archive(self, client, auth_headers):
+        habit = client.post("/api/habits", json={"name": "evening walk"}, headers=auth_headers).json()
+
+        renamed = client.put(f"/api/habits/{habit['id']}", json={"name": "sunset stroll"}, headers=auth_headers)
+        assert renamed.json()["name"] == "sunset stroll"
+
+        archived = client.put(f"/api/habits/{habit['id']}", json={"is_archived": True}, headers=auth_headers)
+        assert archived.json()["is_archived"] is True
+
+        # retired rituals leave the default list but stay reachable
+        assert client.get("/api/habits", headers=auth_headers).json() == []
+        assert len(client.get("/api/habits?include_archived=true", headers=auth_headers).json()) == 1
+
+    def test_habit_delete_cascades_logs(self, client, auth_headers):
+        habit = client.post("/api/habits", json={"name": "tea ritual"}, headers=auth_headers).json()
+        client.post(f"/api/habits/{habit['id']}/check-in", headers=auth_headers)
+
+        assert client.delete(f"/api/habits/{habit['id']}", headers=auth_headers).status_code == 204
+        check = client.post(f"/api/habits/{habit['id']}/check-in", headers=auth_headers)
+        assert check.status_code == 404
+
+
+class TestStats:
+    def test_stats_aggregate_the_greenhouse(self, client, auth_headers):
+        # pin the note to today's garden day so utc/local boundaries can't flake
+        client.post("/api/notes", json={
+            "title": "stats probe",
+            "tags": ["calm"],
+            "entry_date": date.today().isoformat(),
+        }, headers=auth_headers)
+        client.post("/api/mood", json={"score": 7}, headers=auth_headers)
+        habit = client.post("/api/habits", json={"name": "watering"}, headers=auth_headers).json()
+        client.post(f"/api/habits/{habit['id']}/check-in", headers=auth_headers)
+
+        stats = client.get("/api/stats?days=14", headers=auth_headers).json()
+        assert stats["totals"]["notes"] >= 1
+        assert stats["totals"]["habits"] >= 1
+        assert stats["totals"]["avg_mood"] == 7.0
+        assert any(t["name"] == "calm" for t in stats["top_tags"])
+
+        today_entry = [m for m in stats["mood"] if m["avg_score"] is not None]
+        assert today_entry, "today's mood should appear in the series"
+
+        today = max(stats["activity"], key=lambda d: d["date"])
+        assert today["notes"] >= 1 and today["checkins"] >= 1 and today["moods"] == 1
+
+    def test_stats_etag_revalidation(self, client, auth_headers):
+        first = client.get("/api/stats?days=14", headers=auth_headers)
+        etag = first.headers["etag"]
+        assert etag
+
+        revalidated = client.get(
+            "/api/stats?days=14", headers={**auth_headers, "If-None-Match": etag}
+        )
+        assert revalidated.status_code == 304
+
+    def test_feed_window_uses_garden_day(self, client, auth_headers):
+        client.post("/api/notes", json={
+            "title": "old memory",
+            "entry_date": "2026-01-15",
+        }, headers=auth_headers)
+
+        in_window = client.get(
+            "/api/feed?date_from=2026-01-14&date_to=2026-01-16", headers=auth_headers
+        ).json()
+        assert in_window["total"] == 1
+        assert in_window["items"][0]["title"] == "old memory"
