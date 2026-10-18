@@ -56,17 +56,17 @@ html.dark {
   --mint-dark: #8fcfa0;
 
   --slate-light: #1a2320;
-  --slate: #94a89a;
+  --slate: #a9bcac;
 
   --pearl: #1b241f;
   --charcoal: #e7ede7;
 
-  --glass-bg: rgba(27, 36, 31, 0.45);
-  --glass-bg-strong: rgba(27, 36, 31, 0.62);
-  --glass-bg-soft: rgba(27, 36, 31, 0.32);
-  --glass-border: rgba(163, 194, 163, 0.18);
-  --glass-border-soft: rgba(163, 194, 163, 0.1);
-  --glass-highlight: rgba(231, 237, 231, 0.06);
+  --glass-bg: rgba(27, 36, 31, 0.48);
+  --glass-bg-strong: rgba(27, 36, 31, 0.66);
+  --glass-bg-soft: rgba(27, 36, 31, 0.34);
+  --glass-border: rgba(173, 203, 173, 0.24);
+  --glass-border-soft: rgba(173, 203, 173, 0.14);
+  --glass-highlight: rgba(231, 237, 231, 0.08);
   --glass-shadow:
     0 10px 34px rgba(0, 0, 0, 0.35),
     0 2px 8px rgba(0, 0, 0, 0.2),
@@ -92,9 +92,17 @@ html.dark .glass-inset {
 html.dark .glass-drawer {
   background: linear-gradient(
     160deg,
-    rgba(24, 32, 26, 0.88),
-    rgba(20, 27, 22, 0.82) 70%,
-    rgba(42, 58, 48, 0.12)
+    rgba(26, 34, 28, 0.92),
+    rgba(21, 28, 23, 0.86) 70%,
+    rgba(46, 62, 51, 0.14)
+  );
+}
+
+html.dark .glass-card {
+  background: linear-gradient(
+    155deg,
+    rgba(32, 43, 36, 0.66),
+    rgba(27, 36, 31, 0.54) 60%
   );
 }
 
