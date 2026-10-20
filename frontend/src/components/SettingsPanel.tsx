@@ -104,7 +104,7 @@ export default function SettingsPanel() {
           <div className="flex items-center gap-3 text-sm font-sans text-slate/70">
             <Sprout className="w-4 h-4 text-sage" />
             <span>
-              Mindgarden v0.1 — a calm knowledge garden grown with FastAPI, SQLite and Next.js
+              Mindgarden v1.0 — a calm knowledge garden grown with FastAPI, SQLite and Next.js
             </span>
           </div>
         </div>
