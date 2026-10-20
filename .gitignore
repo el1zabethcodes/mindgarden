@@ -32,3 +32,6 @@ backend/garden.db
 
 # python caches
 __pycache__/
+
+# build artifacts
+frontend/tsconfig.tsbuildinfo
